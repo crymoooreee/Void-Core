@@ -10,6 +10,12 @@ const {
   getActiveGame
 } = require("../core/games/game-detector");
 
+const {
+    collectPerformance,
+    getPerformanceHistory,
+    resetPerformanceHistory
+} = require("../core/performance/performance-monitor");
+
 let mainWindow;
 let tray;
 
@@ -120,6 +126,55 @@ app.whenReady().then(() => {
     };
   }
 });
+
+ipcMain.handle(
+    "performance:get",
+    async () => {
+
+        try {
+
+            return await collectPerformance();
+
+        } catch (error) {
+
+            console.error(
+                "Performance monitor:",
+                error
+            );
+
+            return {
+                active: false,
+                error: true,
+                message:
+                    error.message
+            };
+
+        }
+
+    }
+);
+
+
+ipcMain.handle(
+    "performance:history",
+    () => {
+
+        return getPerformanceHistory();
+
+    }
+);
+
+
+ipcMain.handle(
+    "performance:reset",
+    () => {
+
+        resetPerformanceHistory();
+
+        return true;
+
+    }
+);
 
 ipcMain.handle(
   "games:getRunning",

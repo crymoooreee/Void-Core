@@ -25,6 +25,25 @@ contextBridge.exposeInMainWorld("voidCore", {
 
   },
 
+  performance: {
+
+      get: () =>
+          ipcRenderer.invoke(
+              "performance:get"
+          ),
+
+      getHistory: () =>
+          ipcRenderer.invoke(
+              "performance:history"
+          ),
+
+      reset: () =>
+          ipcRenderer.invoke(
+              "performance:reset"
+          )
+
+  },
+
   monitor: {
     getSystemInfo: () =>
       ipcRenderer.invoke("monitor:getSystemInfo")

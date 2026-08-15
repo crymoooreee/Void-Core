@@ -600,9 +600,7 @@ h3 {
   border-radius: 999px;
 }
 
-/* ========================================
-   ACTIVE GAME
-======================================== */
+/* ACTIVE GAME */
 
 .active-game-section {
   margin-top: 24px;
@@ -648,35 +646,26 @@ h3 {
 }
 
 
-/* ========================================
-   ACTIVE GAME BACKGROUND
-======================================== */
+/* ACTIVE GAME BACKGROUND */
 
 #activeGame.game-active {
     position: relative;
-
     min-height: 100px;
-
+    height: 90%;
     overflow: hidden !important;
-
     border-radius: 12px;
-
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
 
-
 /* Затемнение картинки */
 
 .game-background-overlay {
     position: absolute;
-
     inset: 0;
-
     width: 100%;
     height: 100%;
-
     background:
         linear-gradient(
             90deg,
@@ -684,143 +673,170 @@ h3 {
             rgba(10, 13, 15, 0.75) 45%,
             rgba(10, 13, 15, 0.35) 100%
         );
-
     pointer-events: none;
 }
-
 
 /* Контент поверх картинки */
 
 .game-active-content {
     position: relative;
-
     z-index: 2;
-
     min-height: 180px;
-
     padding: 24px;
-
     display: flex;
-
     align-items: flex-end;
-
     gap: 28px;
 }
 
 /* Название игры */
 
 .game-active-info {
-
     flex: 1;
-
     display: flex;
-
     flex-direction: column;
-
 }
-
 
 .game-active-info strong {
-
     font-size: 24px;
-
     font-weight: 700;
-
     color: #ffffff;
-
 }
 
-
 .game-active-info span {
-
     margin-top: 6px;
-
     font-size: 12px;
-
     color: rgba(255,255,255,0.55);
-
 }
 
 
 /* Статистика */
 
 .game-stats {
-
     display: flex;
-
     gap: 28px;
-
 }
 
-
 .game-stat {
-
     display: flex;
-
     flex-direction: column;
-
 }
 
 
 .game-stat small {
-
     font-size: 10px;
-
     color: rgba(255,255,255,0.45);
-
     text-transform: uppercase;
-
     letter-spacing: 1px;
-
 }
-
 
 .game-stat strong {
-
     margin-top: 5px;
-
     font-size: 16px;
-
     color: #ffffff;
-
 }
-
 
 /* LIVE */
 
 .running-indicator {
-
     display: flex;
-
     align-items: center;
-
     gap: 7px;
-
     color: #50E3C2;
-
     font-size: 10px;
-
     font-weight: 700;
-
     letter-spacing: 1px;
-
 }
 
 
 .status-dot {
-
     width: 7px;
-
     height: 7px;
-
     border-radius: 50%;
-
     background: #50E3C2;
+    box-shadow:0 0 10px rgba(80, 227, 194, 0.8);
+}
 
-    box-shadow:
-        0 0 10px
-        rgba(80, 227, 194, 0.8);
+/* PERFORMANCE MONITOR*/
 
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+}
+
+
+.performance-metric {
+    padding: 16px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+
+.performance-metric span {
+    display: block;
+    font-size: 10px;
+    color: #777;
+    letter-spacing: 1px;
+}
+
+.performance-metric strong {
+    display: block;
+    margin-top: 7px;
+    font-size: 20px;
+    color: #fff;
+}
+
+.performance-chart {
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+}
+
+.chart-label {
+    margin-bottom: 10px;
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+#performanceChart {
+    width: 100%;
+    display: block;
+}
+
+.performance-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.chart-tabs {
+    display: flex;
+    gap: 5px;
+}
+
+.chart-tab {
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.025);
+    color: #666;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.chart-tab:hover {
+    color: #aaa;
+}
+
+.chart-tab.active {
+    color: #50E3C2;
+    border-color: rgba(80,227,194,0.25);
+    background: rgba(80,227,194,0.06);
 }
 
 
