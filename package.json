@@ -1,0 +1,38 @@
+{
+  "name": "voidcore",
+  "version": "0.1.0",
+  "description": "VoidCore - Gaming Hub, Optimizer and Diagnostic",
+  "main": "electron/main.js",
+  "author": "VoidCore",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.voidcore.app",
+    "productName": "VoidCore",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "renderer/**/*",
+      "core/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "VoidCore-Setup-${version}.${ext}"
+    }
+  },
+  "dependencies": {
+    "systeminformation": "^5.33.1"
+  }
+}

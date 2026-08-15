@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';"
+  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoidCore</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="titlebar">
+      <div class="brand">
+        <div class="brand-mark">V</div>
+        <div class="brand-name">VOID<span>CORE</span></div>
+      </div>
+
+      <div class="window-controls">
+        <button id="minimizeBtn" class="window-btn" aria-label="Minimize">−</button>
+        <button id="maximizeBtn" class="window-btn" aria-label="Maximize">□</button>
+        <button id="closeBtn" class="window-btn close" aria-label="Close">×</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <nav class="nav">
+          <button class="nav-item active" data-page="dashboard">
+            <span class="nav-icon">◈</span>
+            <span>Dashboard</span>
+          </button>
+
+          <button class="nav-item" data-page="games">
+            <span class="nav-icon">🎮</span>
+            <span>Games</span>
+          </button>
+
+          <button class="nav-item" data-page="optimizer">
+            <span class="nav-icon">⚡</span>
+            <span>Optimizer</span>
+          </button>
+
+          <button class="nav-item" data-page="diagnostic">
+            <span class="nav-icon">◉</span>
+            <span>Diagnostic</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <button class="nav-item" data-page="settings">
+            <span class="nav-icon">⚙</span>
+            <span>Settings</span>
+          </button>
+
+          <div class="version">VOIDCORE v0.2.0</div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section id="dashboardPage" class="page active">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">SYSTEM OVERVIEW</p>
+              <h1>Good afternoon, gamer.</h1>
+              <p class="subtitle">Your system is ready for the next session.</p>
+            </div>
+
+            <div class="system-status">
+              <span class="status-dot"></span>
+              System Ready
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="metric-card">
+              <div class="metric-top">
+                <span>CPU</span>
+                <span class="metric-icon">⌁</span>
+              </div>
+              <div class="metric-value">--<small>%</small></div>
+              <div class="metric-footer">
+                <span>Temperature</span>
+                <strong>--°C</strong>
+              </div>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span>GPU</span>
+                <span class="metric-icon">◇</span>
+              </div>
+              <div class="metric-value">--<small>%</small></div>
+              <div class="metric-footer">
+                <span>Temperature</span>
+                <strong>--°C</strong>
+              </div>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span>RAM</span>
+                <span class="metric-icon">▦</span>
+              </div>
+              <div class="metric-value">--<small> GB</small></div>
+              <div class="metric-footer">
+                <span>Available</span>
+                <strong>-- GB</strong>
+              </div>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span>VRAM</span>
+                <span class="metric-icon">▣</span>
+              </div>
+              <div class="metric-value">--<small> GB</small></div>
+              <div class="metric-footer">
+                <span>Available</span>
+                <strong>-- GB</strong>
+              </div>
+            </article>
+
+            
+          </div>
+
+          
+
+          <div class="dashboard-grid">
+            <article class="panel active-game">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">GAME STATUS</p>
+                  <h2 id="activeGameName">No game running</h2>
+                </div>
+                <span id="activeGameBadge" class="badge neutral">IDLE</span>
+              </div>
+              <div id="activeGame" class="game-empty">
+                <div class="game-empty-icon">🎮</div>
+                <h3>Ready when you are.</h3>
+                <p> VoidCore is waiting for a game to start.</p>
+              </div>
+            </article>
+
+            <article class="panel optimization-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">QUICK ACTION</p>
+                  <h2>System Optimization</h2>
+                </div>
+                <span class="badge accent">READY</span>
+              </div>
+
+              <p class="panel-description">
+                Prepare Windows for gaming by applying your selected optimization profile.
+              </p>
+
+              <button id="optimizeBtn" class="primary-btn">
+                <span>⚡</span>
+                Optimize PC
+              </button>
+
+              <div id="optimizeResult" class="action-result hidden"></div>
+            </article>
+          </div>
+
+          <article class="panel roadmap-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">VOIDCORE ROADMAP</p>
+                <h2>What's coming</h2>
+              </div>
+            </div>
+
+            <div class="roadmap">
+              <div class="roadmap-item">
+                <span class="roadmap-number">01</span>
+                <div>
+                  <strong>VoidCore UI</strong>
+                  <small>Dashboard and application shell</small>
+                </div>
+              </div>
+
+              <div class="roadmap-item">
+                <span class="roadmap-number">02</span>
+                <div>
+                  <strong>Hardware Monitor</strong>
+                  <small>CPU, GPU, RAM, VRAM and temperatures</small>
+                </div>
+              </div>
+
+              <div class="roadmap-item current">
+                <span class="roadmap-number">03</span>
+                <div>
+                  <strong>Game Detector</strong>
+                  <small>Automatic game detection and profiles</small>
+                </div>
+              </div>
+
+              <div class="roadmap-item">
+                <span class="roadmap-number">04</span>
+                <div>
+                  <strong>Optimizer</strong>
+                  <small>Safe Windows optimization engine</small>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section id="gamesPage" class="page">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">LIBRARY</p>
+              <h1>Games</h1>
+              <p class="subtitle">Your detected games will appear here.</p>
+            </div>
+          </div>
+
+          <div class="empty-page">
+            <div class="empty-icon">🎮</div>
+            <h2>Game Library</h2>
+            <p>Game detection is coming in Stage 3.</p>
+          </div>
+        </section>
+
+        <section id="optimizerPage" class="page">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">PERFORMANCE</p>
+              <h1>Optimizer</h1>
+              <p class="subtitle">Control how VoidCore prepares your PC for gaming.</p>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="setting-row">
+              <div>
+                <strong>Gaming Mode</strong>
+                <small>Temporarily prioritize gaming-related processes.</small>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>Background Apps</strong>
+                <small>Manage selected background processes while gaming.</small>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>Notifications</strong>
+                <small>Control Windows notifications during a gaming session.</small>
+              </div>
+              <label class="toggle">
+                <input type="checkbox">
+                <span></span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section id="diagnosticPage" class="page">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">ANALYSIS</p>
+              <h1>Diagnostic</h1>
+              <p class="subtitle">Find out why your game is losing performance.</p>
+            </div>
+          </div>
+
+          <div class="empty-page">
+            <div class="empty-icon">◉</div>
+            <h2>Diagnostic Engine</h2>
+            <p>Performance analysis will be connected in Stage 5.</p>
+          </div>
+        </section>
+
+        <section id="settingsPage" class="page">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">CONFIGURATION</p>
+              <h1>Settings</h1>
+              <p class="subtitle">Configure VoidCore.</p>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="setting-row">
+              <div>
+                <strong>Start with Windows</strong>
+                <small>Launch VoidCore automatically after Windows starts.</small>
+              </div>
+              <label class="toggle">
+                <input type="checkbox">
+                <span></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>Minimize to tray</strong>
+                <small>Keep VoidCore running when the window is closed.</small>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span></span>
+              </label>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/games.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
