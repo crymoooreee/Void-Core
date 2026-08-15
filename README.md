@@ -288,8 +288,8 @@ VoidCore создаётся с одной главной целью:
 
 **crymoooreee**
 
-GitHub: `https://github.com/crymoooreee`
-Twitch: 'https://www.twitch.tv/crymoooreee'
+[GitHub](https://github.com/crymoooreee)
+[Twitch](https://www.twitch.tv/crymoooreee)
 
 ---
 
