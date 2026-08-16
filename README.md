@@ -291,6 +291,12 @@ VoidCore создаётся с одной главной целью:
 [GitHub](https://github.com/crymoooreee)
 [Twitch](https://www.twitch.tv/crymoooreee)
 
+## 💰 Поддержка автору
+
+[Donatex](https://donatex.gg/donate/crymoooreee)
+[Boosty](https://boosty.to/crymoooreee)
+
+
 ---
 
 **VoidCore — Find out why your FPS drops.**
