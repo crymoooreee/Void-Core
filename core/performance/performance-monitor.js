@@ -1,10 +1,17 @@
 const si = require("systeminformation");
 
+const {
+    startFPSMonitor,
+    stopFPSMonitor,
+    getFPSData
+} = require("./fps-monitor");
+
 const HISTORY_LENGTH = 30;
 
 let history = [];
 
 let lastSample = null;
+let monitoredGamePid = null;
 
 // PERFORMANCE SAMPLE
 
@@ -13,39 +20,193 @@ async function collectPerformance() {
     const game =
         await getActiveGame();
 
+    // ========================================
+    // FPS MONITOR
+    // ========================================
+
+    if (game) {
+
+        if (
+            monitoredGamePid !== game.pid
+        ) {
+
+            console.log(
+                `[Performance] Starting FPS monitor for PID: ${game.pid}`
+            );
+
+
+            try {
+
+                if (
+                    monitoredGamePid !== null
+                ) {
+
+                    await stopFPSMonitor();
+
+                }
+
+
+                await startFPSMonitor(
+                    game.pid
+                );
+
+
+                monitoredGamePid =
+                    game.pid;
+
+
+            } catch (error) {
+
+                console.error(
+                    "[Performance] Failed to start FPS monitor:",
+                    error
+                );
+
+
+                monitoredGamePid =
+                    null;
+
+            }
+
+        }
+
+    }
+
+
+    // ========================================
+    // NO GAME
+    // ========================================
 
     if (!game) {
 
+        if (
+            monitoredGamePid !== null
+        ) {
+
+            try {
+
+                await stopFPSMonitor();
+
+            } catch (error) {
+
+                console.error(
+                    "[Performance] Failed to stop FPS monitor:",
+                    error
+                );
+
+            }
+
+            monitoredGamePid =
+                null;
+
+        }
+
+
         lastSample = null;
 
+
         return {
+
             active: false,
+
             game: null,
+
+            sample: null,
+
             history
+
         };
 
     }
 
 
+    // ========================================
+    // HARDWARE
+    // ========================================
+
     const hardware =
         await getHardware();
 
 
+    // ========================================
+    // FPS
+    // ========================================
+
+    let fpsData = null;
+
+    try {
+
+        fpsData =
+            await getFPSData();
+
+        console.log(
+            "[Performance] RAW FPS DATA:",
+            fpsData
+        );
+
+    } catch (error) {
+
+        console.error(
+            "[Performance] FPS error:",
+            error
+        );
+
+    }
+
+
+    // ========================================
+    // SAMPLE
+    // ========================================
+
     const sample = {
 
-        timestamp: Date.now(),
+        timestamp:
+            Date.now(),
+
+
+        // ========================================
+        // GAME
+        // ========================================
 
         game: {
 
-            name: game.name,
+            name:
+                game.name,
 
-            pid: game.pid,
+            pid:
+                game.pid,
 
-            cpu: game.cpu,
+            cpu:
+                game.cpu,
 
-            memory: game.memory
+            memory:
+                game.memory
 
         },
+
+
+        // ========================================
+        // FPS
+        // ========================================
+
+        fps:
+            fpsData?.fps ??
+            null,
+
+
+        frameTime:
+            fpsData?.frameTime ??
+            null,
+
+
+        onePercentLow:
+            fpsData?.onePercentLow ??
+            null,
+
+
+        // ========================================
+        // CPU
+        // ========================================
 
         cpu: {
 
@@ -54,12 +215,22 @@ async function collectPerformance() {
 
         },
 
+
+        // ========================================
+        // GPU
+        // ========================================
+
         gpu: {
 
             usage:
                 hardware.gpu
 
         },
+
+
+        // ========================================
+        // RAM
+        // ========================================
 
         ram: {
 
@@ -70,6 +241,11 @@ async function collectPerformance() {
                 hardware.ram.total
 
         },
+
+
+        // ========================================
+        // VRAM
+        // ========================================
 
         vram: {
 
@@ -84,7 +260,13 @@ async function collectPerformance() {
     };
 
 
-    history.push(sample);
+    // ========================================
+    // HISTORY
+    // ========================================
+
+    history.push(
+        sample
+    );
 
 
     if (
@@ -97,8 +279,35 @@ async function collectPerformance() {
     }
 
 
-    lastSample = sample;
+    lastSample =
+        sample;
 
+
+    // ========================================
+    // DEBUG
+    // ========================================
+
+    console.log(
+        "[Performance]",
+        {
+            fps:
+                sample.fps,
+
+            frameTime:
+                sample.frameTime,
+
+            cpu:
+                sample.cpu.usage,
+
+            gpu:
+                sample.gpu.usage
+        }
+    );
+
+
+    // ========================================
+    // RETURN
+    // ========================================
 
     return {
 

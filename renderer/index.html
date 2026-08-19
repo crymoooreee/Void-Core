@@ -180,13 +180,15 @@
                 <div class="performance-chart-header">
                     <div class="chart-label">PERFORMANCE HISTORY</div>
                     <div class="chart-tabs">
+                        <button class="chart-tab active" data-metric="fps">FPS</button>
+                        <button class="chart-tab" data-metric="frameTime">FRAME TIME</button>
                         <button class="chart-tab active" data-metric="cpu">CPU</button>
                         <button class="chart-tab" data-metric="gpu">GPU</button>
                         <button class="chart-tab" data-metric="ram">RAM</button>
                         <button class="chart-tab" data-metric="vram">VRAM</button>
                     </div>
                 </div>
-                <canvas id="performanceChart" height="120" ></canvas>
+                <canvas id="performanceChart" height="120"></canvas>
             </div>
           </article>
 

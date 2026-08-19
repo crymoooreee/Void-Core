@@ -16,6 +16,12 @@ const {
     resetPerformanceHistory
 } = require("../core/performance/performance-monitor");
 
+const {
+    startFPSMonitor,
+    stopFPSMonitor,
+    getFPSData
+} = require("../core/performance/fps-monitor");
+
 let mainWindow;
 let tray;
 
@@ -150,6 +156,42 @@ ipcMain.handle(
             };
 
         }
+
+    }
+);
+
+ipcMain.handle(
+    "fps:start",
+    async (
+        event,
+        pid
+    ) => {
+
+        startFPSMonitor(pid);
+
+        return true;
+
+    }
+);
+
+
+ipcMain.handle(
+    "fps:stop",
+    async () => {
+
+        stopFPSMonitor();
+
+        return true;
+
+    }
+);
+
+
+ipcMain.handle(
+    "fps:get",
+    async () => {
+
+        return getFPSData();
 
     }
 );
