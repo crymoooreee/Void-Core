@@ -1,10 +1,6 @@
 {
   "name": "voidcore",
-<<<<<<< Updated upstream
-  "version": "0.1.0",
-=======
   "version": "0.4.5",
->>>>>>> Stashed changes
   "description": "VoidCore - Gaming Hub, Optimizer and Diagnostic",
   "main": "electron/main.js",
   "author": "VoidCore",
