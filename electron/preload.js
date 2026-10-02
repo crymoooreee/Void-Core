@@ -25,6 +25,26 @@ contextBridge.exposeInMainWorld("voidCore", {
 
   },
 
+  fps: {
+    start: (
+        pid
+    ) =>
+        ipcRenderer.invoke(
+            "fps:start",
+            pid
+        ),
+
+    stop: () =>
+        ipcRenderer.invoke(
+            "fps:stop"
+        ),
+
+    get: () =>
+        ipcRenderer.invoke(
+            "fps:get"
+        )
+  },
+
   performance: {
 
       get: () =>

@@ -1,6 +1,6 @@
 {
   "name": "voidcore",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "VoidCore - Gaming Hub, Optimizer and Diagnostic",
   "main": "electron/main.js",
   "author": "VoidCore",
@@ -29,7 +29,8 @@
     ],
     "win": {
       "target": "nsis",
-      "artifactName": "VoidCore-Setup-${version}.${ext}"
+      "artifactName": "VoidCore-Setup-${version}.${ext}",
+      "icon": "assets/icons/app.ico"
     },
     "extraResources": [
       {
@@ -39,7 +40,11 @@
           "**/*"
         ]
       }
-    ]
+    ],
+    "nsis": {
+      "installerIcon": "assets/icons/app.ico",
+      "uninstallerIcon": "assets/icons/app.ico"
+    }
   },
   "dependencies": {
     "systeminformation": "^5.33.1"

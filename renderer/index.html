@@ -8,14 +8,18 @@
   >
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VoidCore</title>
+  <link rel="icon" type="image/png" href="../assets/icons/app.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="app-shell">
     <header class="titlebar">
       <div class="brand" aria-label="VoidCore">
-        <div class="brand-mark">V</div>
-        <div class="brand-name">VOID<span>CORE</span></div>
+        <img class="brand-logo" src="../assets/branding/void-core-mark.svg" alt="" width="32" height="32" draggable="false">
+        <div class="brand-copy">
+          <div class="brand-name">VOID <span>CORE</span></div>
+          <div class="brand-tagline">PERFORMANCE DIAGNOSTICS</div>
+        </div>
       </div>
 
       <div class="window-controls">
@@ -46,7 +50,7 @@
           <button class="nav-item" data-page="settings">
             <span class="nav-icon">⚙</span><span>Settings</span>
           </button>
-          <div class="version"><span></span> VOIDCORE 0.4.5</div>
+          <div class="version"><span></span> VOIDCORE 0.4.6</div>
         </div>
       </aside>
 
@@ -100,59 +104,7 @@
               </div>
             </article>
 
-<<<<<<< Updated upstream
-            <article class="panel performance-panel">
-              <div class="panel-header">
-                  <div>
-                      <p class="eyebrow">PERFORMANCE</p>
-                      <h2>Game Performance</h2>
-                  </div>
-                  <span class="badge neutral" id="performanceStatus">WAITING</span>
-              </div>
-              <div class="performance-grid">
-                  <div class="performance-metric">
-                      <span>FPS</span>
-                      <strong id="performanceFPS">--</strong>
-                  </div>
-                  <div class="performance-metric">
-                      <span>FRAME TIME</span>
-                      <strong id="performanceFrameTime">--</strong>
-                  </div>
-                  <div class="performance-metric">
-                      <span>CPU</span>
-                      <strong id="performanceCPU">--%</strong>
-                  </div>
-                  <div class="performance-metric">
-                      <span>GPU</span>
-                      <strong id="performanceGPU">--%</strong>
-                  </div>
-                  <div class="performance-metric">
-                      <span>RAM</span>
-                      <strong id="performanceRAM">-- GB</strong>
-                  </div>
-                  <div class="performance-metric">
-                      <span>VRAM</span>
-                      <strong id="performanceVRAM">-- GB</strong>
-                  </div>
-              </div>
-              <div class="performance-chart">
-                <div class="performance-chart-header">
-                    <div class="chart-label">PERFORMANCE HISTORY</div>
-                    <div class="chart-tabs">
-                        <button class="chart-tab active" data-metric="cpu">CPU</button>
-                        <button class="chart-tab" data-metric="gpu">GPU</button>
-                        <button class="chart-tab" data-metric="ram">RAM</button>
-                        <button class="chart-tab" data-metric="vram">VRAM</button>
-                    </div>
-                </div>
-                <canvas id="performanceChart" height="120" ></canvas>
-            </div>
-          </article>
-
-            <article class="panel optimization-panel">
-=======
             <article class="panel quick-panel">
->>>>>>> Stashed changes
               <div class="panel-header">
                 <div>
                   <p class="eyebrow">QUICK ACTION</p>

@@ -16,6 +16,12 @@ const {
     resetPerformanceHistory
 } = require("../core/performance/performance-monitor");
 
+const {
+    startFPSMonitor,
+    stopFPSMonitor,
+    getFPSData
+} = require("../core/performance/fps-monitor");
+
 let mainWindow;
 let tray;
 let telemetryTimer = null;
@@ -42,6 +48,7 @@ function createWindow() {
     minWidth: 1050,
     minHeight: 680,
     backgroundColor: "#080a0d",
+    icon: path.join(__dirname, "../assets/icons/app.png"),
     frame: false,
     show: false,
     webPreferences: {
@@ -170,8 +177,6 @@ ipcMain.handle(
     }
 );
 
-<<<<<<< Updated upstream
-=======
 ipcMain.handle(
     "fps:start",
     async (
@@ -204,7 +209,6 @@ ipcMain.handle(
     }
 );
 
->>>>>>> Stashed changes
 
 ipcMain.handle(
     "performance:history",

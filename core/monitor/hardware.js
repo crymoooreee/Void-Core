@@ -116,6 +116,7 @@ async function getNvidiaInfo() {
   };
 }
 
+// Temperature probes can launch WMI/PowerShell; keep them off the hot path.
 let cpuTempAt = 0;
 let cachedCpuTemperature = null;
 let nvidiaRetryAt = 0;
@@ -132,15 +133,15 @@ async function getCpuInfo() {
   try {
 
     if (Date.now() - cpuTempAt >= 15000) {
-      cpuTempAt = Date.now();
-      const cpuTemp = await si.cpuTemperature();
+    cpuTempAt = Date.now();
+    const cpuTemp = await si.cpuTemperature();
 
-      if (
-        typeof cpuTemp.main === "number" &&
-        cpuTemp.main > 0
-      ) {
-        cachedCpuTemperature = temperature = cpuTemp.main;
-      }
+    if (
+      typeof cpuTemp.main === "number" &&
+      cpuTemp.main > 0
+    ) {
+      cachedCpuTemperature = temperature = cpuTemp.main;
+    }
     }
 
   } catch (error) {
@@ -175,9 +176,13 @@ async function getMemoryInfo() {
 
 
   return {
+
     total,
+
     used,
+
     available,
+
     usage:
       total > 0
         ? (used / total) * 100
@@ -202,6 +207,7 @@ async function readSystemInfo() {
   ]);
 
 
+  // Сначала пытаемся получить точные данные NVIDIA через nvidia-smi
 
   const nvidia =
     await getNvidiaInfo();
@@ -232,8 +238,8 @@ async function readSystemInfo() {
             (b.vram || 0) -
             (a.vram || 0)
         )[0]
-      ||
-      controllers[0];
+        ||
+        controllers[0];
 
 
     const vramTotal =
@@ -272,13 +278,13 @@ async function readSystemInfo() {
 
       vramFree:
         vramTotal != null &&
-          vramUsed != null
+        vramUsed != null
           ? vramTotal - vramUsed
           : null,
 
       vramUsage:
         vramTotal &&
-          vramUsed != null
+        vramUsed != null
           ? (vramUsed / vramTotal) * 100
           : null
 
@@ -290,8 +296,11 @@ async function readSystemInfo() {
   return {
 
     timestamp: Date.now(),
+
     cpu,
+
     memory,
+
     gpu
 
   };

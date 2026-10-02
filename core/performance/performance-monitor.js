@@ -1,9 +1,24 @@
-const si = require("systeminformation");
+const { getProcessSnapshot } = require("../monitor/process-snapshot");
+const { getSystemInfo, getComputerProfile } = require("../monitor/hardware");
+const { getGameWindowState } = require("./game-window-state");
+const { GAMES } = require("../games/games-list");
+const {
+    startFPSMonitor,
+    stopFPSMonitor,
+    getFPSData
+} = require("./fps-monitor");
+const {
+    inspectSample,
+    getDiagnosticEvents,
+    getSuppressedEvents,
+    resetDiagnostics
+} = require("./diagnostic-engine");
 
-const HISTORY_LENGTH = 30;
+const HISTORY_LENGTH = 60;
 
 let history = [];
 let lastSample = null;
+let monitoredGamePid = null;
 
 function findActiveGame(processes) {
     for (const runningProcess of processes) {
@@ -126,6 +141,7 @@ async function collectPerformance() {
     const fpsData = getFPSData();
     const sample = toSample(game, fpsData, hardware);
 
+    // The baseline must not contain the current low sample.
     const diagnostic = await inspectSample({
         sample,
         history,

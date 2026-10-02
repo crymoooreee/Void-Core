@@ -3,6 +3,7 @@ const path = require("path");
 const { spawn, execFileSync } = require("child_process");
 const os = require("os");
 
+// Keep enough frames for 1% Low without allowing memory usage to grow forever.
 const HISTORY_LENGTH = 1200;
 const LIVE_WINDOW_MS = 500;
 const MAX_VALID_FRAME_TIME_MS = 1000;
@@ -66,9 +67,11 @@ function getProjectRoot() {
 
 function getPresentMonPath() {
     const candidates = [
+        // electron-builder copies PresentMon here via extraResources.
         process.resourcesPath
             ? path.join(process.resourcesPath, "tools", "presentmon", "PresentMon.exe")
             : null,
+        // Development mode.
         path.join(getProjectRoot(), "tools", "presentmon", "PresentMon.exe")
     ].filter(Boolean);
 
@@ -254,6 +257,8 @@ function processPresentMonLine(rawLine) {
         return;
     }
 
+    // PresentMon writes the CSV header first. Detect it rather than assuming that
+    // stdout can never contain an informational line.
     if (line.replace(/^\uFEFF/, "").startsWith("Application,") && line.includes("FrameTime")) {
         columnIndex = createColumnIndex(line);
         if (!columnIndex) {
@@ -271,6 +276,7 @@ function processPresentMonLine(rawLine) {
     totalFrameCount++;
     lastFrameAt = Date.now();
 
+    // Trimming in batches avoids moving the array on every captured frame.
     if (frameHistory.length > HISTORY_TRIM_THRESHOLD) {
         frameHistory = frameHistory.slice(-HISTORY_LENGTH);
     }
@@ -320,6 +326,7 @@ function stopETWSession(name) {
             stdio: ["ignore", "pipe", "pipe"]
         });
     } catch {
+        // The session may already have stopped with PresentMon.
     }
 }
 
@@ -401,6 +408,7 @@ function startFPSMonitor(pid) {
 
         presentMonProcess = child;
 
+        // PresentMon must not compete with the game for CPU time.
         try {
             os.setPriority(child.pid, os.constants.priority.PRIORITY_BELOW_NORMAL);
         } catch (error) {
@@ -520,6 +528,7 @@ module.exports = {
     stopFPSMonitor,
     getFPSData,
     getFPSMonitorStatus,
+    // Exported for deterministic parser tests without starting ETW.
     _test: {
         parseCSVLine,
         createColumnIndex,
