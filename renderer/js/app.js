@@ -206,7 +206,10 @@ function updateHardwareUI(data) {
 }
 
 
+let hardwareRequestInFlight = false;
 async function refreshHardware() {
+  if (document.hidden || !document.hasFocus() || !pages.dashboard.classList.contains("active") || hardwareRequestInFlight) return;
+  hardwareRequestInFlight = true;
   try {
 
     const data =
@@ -222,6 +225,8 @@ async function refreshHardware() {
       error
     );
 
+  } finally {
+    hardwareRequestInFlight = false;
   }
 }
 
@@ -229,8 +234,8 @@ async function refreshHardware() {
 refreshHardware();
 
 
-// Обновление каждую секунду
+// Lightweight hardware refresh every 5 seconds
 setInterval(
   refreshHardware,
-  1000
+  5000
 );

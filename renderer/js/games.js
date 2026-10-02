@@ -4,6 +4,7 @@ let activeGame = null;
 // REFRESH GAME
 
 async function refreshGames() {
+    if (document.hidden || !document.hasFocus()) return;
 
     try {
 

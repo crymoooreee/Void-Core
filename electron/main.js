@@ -18,6 +18,20 @@ const {
 
 let mainWindow;
 let tray;
+let telemetryTimer = null;
+let telemetryResult = { active: false, history: [], diagnostics: [] };
+let telemetryInFlight = null;
+async function refreshTelemetry() {
+  if (telemetryInFlight) return telemetryInFlight;
+  telemetryInFlight = collectPerformance().then(result => {
+    telemetryResult = result;
+    return result;
+  }).catch(error => {
+    console.error("[Telemetry]", error.message);
+    return telemetryResult;
+  }).finally(() => { telemetryInFlight = null; });
+  return telemetryInFlight;
+}
 
 const isDev = !app.isPackaged;
 
@@ -91,6 +105,8 @@ function createTray() {
 app.whenReady().then(() => {
   createWindow();
   createTray();
+  refreshTelemetry();
+  telemetryTimer = setInterval(refreshTelemetry, 2000);
 
   ipcMain.handle("window:minimize", () => {
     mainWindow?.minimize();
@@ -133,7 +149,7 @@ ipcMain.handle(
 
         try {
 
-            return await collectPerformance();
+            return telemetryResult;
 
         } catch (error) {
 
@@ -154,6 +170,41 @@ ipcMain.handle(
     }
 );
 
+<<<<<<< Updated upstream
+=======
+ipcMain.handle(
+    "fps:start",
+    async (
+        event,
+        pid
+    ) => {
+
+        return startFPSMonitor(pid);
+
+    }
+);
+
+
+ipcMain.handle(
+    "fps:stop",
+    async () => {
+
+        return stopFPSMonitor();
+
+    }
+);
+
+
+ipcMain.handle(
+    "fps:get",
+    async () => {
+
+        return getFPSData();
+
+    }
+);
+
+>>>>>>> Stashed changes
 
 ipcMain.handle(
     "performance:history",
@@ -233,6 +284,11 @@ ipcMain.handle(
       createWindow();
     }
   });
+});
+
+app.on("before-quit", () => {
+  clearInterval(telemetryTimer);
+  stopFPSMonitor();
 });
 
 app.on("window-all-closed", (event) => {

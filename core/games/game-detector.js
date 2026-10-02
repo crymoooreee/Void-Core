@@ -1,4 +1,4 @@
-const si = require("systeminformation");
+const { getProcessSnapshot } = require("../monitor/process-snapshot");
 
 const {
   GAMES
@@ -32,13 +32,13 @@ function findGame(processName) {
 async function getRunningGames() {
 
   const processes =
-    await si.processes();
+    await getProcessSnapshot();
 
 
   const games = [];
 
 
-  for (const process of processes.list) {
+  for (const process of processes) {
 
     const game =
       findGame(process.name);
@@ -78,7 +78,6 @@ async function getActiveGame() {
   }
 
 
-  // Если одновременно запущено несколько игр - выбирается та которая потребляет больше CPU.
 
   games.sort(
     (a, b) =>

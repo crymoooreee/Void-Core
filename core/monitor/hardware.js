@@ -38,6 +38,7 @@ function execFileAsync(file, args = []) {
 
 async function getNvidiaInfo() {
 
+  if (Date.now() < nvidiaRetryAt) return null;
   const output = await execFileAsync(
     "nvidia-smi",
     [
@@ -48,6 +49,7 @@ async function getNvidiaInfo() {
 
 
   if (!output) {
+    nvidiaRetryAt = Date.now() + 60000;
     return null;
   }
 
@@ -114,24 +116,31 @@ async function getNvidiaInfo() {
   };
 }
 
+let cpuTempAt = 0;
+let cachedCpuTemperature = null;
+let nvidiaRetryAt = 0;
+
 // CPU
 
 async function getCpuInfo() {
 
   const load = await si.currentLoad();
 
-  let temperature = null;
+  let temperature = cachedCpuTemperature;
 
 
   try {
 
-    const cpuTemp = await si.cpuTemperature();
+    if (Date.now() - cpuTempAt >= 15000) {
+      cpuTempAt = Date.now();
+      const cpuTemp = await si.cpuTemperature();
 
-    if (
-      typeof cpuTemp.main === "number" &&
-      cpuTemp.main > 0
-    ) {
-      temperature = cpuTemp.main;
+      if (
+        typeof cpuTemp.main === "number" &&
+        cpuTemp.main > 0
+      ) {
+        cachedCpuTemperature = temperature = cpuTemp.main;
+      }
     }
 
   } catch (error) {
@@ -166,13 +175,9 @@ async function getMemoryInfo() {
 
 
   return {
-
     total,
-
     used,
-
     available,
-
     usage:
       total > 0
         ? (used / total) * 100
@@ -183,24 +188,20 @@ async function getMemoryInfo() {
 
 // GPU fallback
 
-async function getSystemInfo() {
+async function readSystemInfo() {
 
   const [
     cpu,
-    memory,
-    graphics
+    memory
   ] = await Promise.all([
 
     getCpuInfo(),
 
-    getMemoryInfo(),
-
-    si.graphics()
+    getMemoryInfo()
 
   ]);
 
 
-  // Сначала пытаемся получить точные данные NVIDIA через nvidia-smi
 
   const nvidia =
     await getNvidiaInfo();
@@ -215,6 +216,7 @@ async function getSystemInfo() {
 
   } else {
 
+    const graphics = await si.graphics();
     const controllers =
       graphics.controllers || [];
 
@@ -230,8 +232,8 @@ async function getSystemInfo() {
             (b.vram || 0) -
             (a.vram || 0)
         )[0]
-        ||
-        controllers[0];
+      ||
+      controllers[0];
 
 
     const vramTotal =
@@ -270,13 +272,13 @@ async function getSystemInfo() {
 
       vramFree:
         vramTotal != null &&
-        vramUsed != null
+          vramUsed != null
           ? vramTotal - vramUsed
           : null,
 
       vramUsage:
         vramTotal &&
-        vramUsed != null
+          vramUsed != null
           ? (vramUsed / vramTotal) * 100
           : null
 
@@ -288,11 +290,8 @@ async function getSystemInfo() {
   return {
 
     timestamp: Date.now(),
-
     cpu,
-
     memory,
-
     gpu
 
   };
@@ -300,6 +299,69 @@ async function getSystemInfo() {
 }
 
 
+let cachedSystemInfo = null;
+let cachedSystemInfoAt = 0;
+let systemInfoPromise = null;
+
+async function getSystemInfo() {
+  const now = Date.now();
+  if (cachedSystemInfo && now - cachedSystemInfoAt < 5000) {
+    return cachedSystemInfo;
+  }
+  if (!systemInfoPromise) {
+    systemInfoPromise = readSystemInfo()
+      .then(result => {
+        cachedSystemInfo = result;
+        cachedSystemInfoAt = Date.now();
+        return result;
+      })
+      .finally(() => { systemInfoPromise = null; });
+  }
+  return systemInfoPromise;
+}
+
+let computerProfilePromise = null;
+
+async function getComputerProfile() {
+  if (!computerProfilePromise) {
+    computerProfilePromise = Promise.all([
+      si.cpu(),
+      si.mem(),
+      si.graphics(),
+      si.osInfo()
+    ]).then(([cpu, memory, graphics, operatingSystem]) => ({
+      cpu: {
+        manufacturer: cpu.manufacturer || null,
+        brand: cpu.brand || null,
+        physicalCores: cpu.physicalCores || null,
+        cores: cpu.cores || null,
+        speedGHz: cpu.speed || null
+      },
+      memory: {
+        totalGB: memory.total / 1024 ** 3
+      },
+      gpus: (graphics.controllers || []).map(controller => ({
+        name: controller.name || controller.model || null,
+        vendor: controller.vendor || null,
+        vramGB: controller.vram ? controller.vram / 1024 : null
+      })),
+      operatingSystem: {
+        platform: operatingSystem.platform || null,
+        distro: operatingSystem.distro || null,
+        release: operatingSystem.release || null,
+        arch: operatingSystem.arch || null
+      }
+    })).catch(error => {
+      computerProfilePromise = null;
+      console.warn("Computer profile unavailable:", error.message);
+      return null;
+    });
+  }
+
+  return computerProfilePromise;
+}
+
 module.exports = {
-  getSystemInfo
+  getSystemInfo,
+  getComputerProfile
 };
