@@ -1,4 +1,5 @@
 const { getProcessSnapshot } = require("../monitor/process-snapshot");
+const si = require("systeminformation");
 
 const {
   GAMES
@@ -29,10 +30,10 @@ function findGame(processName) {
 }
 
 
-async function getRunningGames() {
+async function getRunningGames({ fresh = false } = {}) {
 
   const processes =
-    await getProcessSnapshot();
+    fresh ? (await si.processes()).list || [] : await getProcessSnapshot();
 
 
   const games = [];

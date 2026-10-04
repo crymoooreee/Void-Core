@@ -1,5 +1,9 @@
 const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require("electron");
 const path = require("path");
+const { createUpdateController } = require("./update-controller");
+const { SessionStore } = require("../core/performance/session-store");
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
+if (!hasSingleInstanceLock) app.quit();
 
 const {
   getSystemInfo
@@ -27,10 +31,18 @@ let tray;
 let telemetryTimer = null;
 let telemetryResult = { active: false, history: [], diagnostics: [] };
 let telemetryInFlight = null;
+let updateController = null;
+let sessionStore = null;
+let sessionFlushTimer = null;
+let shuttingDown = false;
+let canQuit = false;
 async function refreshTelemetry() {
+  if (shuttingDown) return telemetryResult;
   if (telemetryInFlight) return telemetryInFlight;
-  telemetryInFlight = collectPerformance().then(result => {
+  telemetryInFlight = collectPerformance().then(async result => {
     telemetryResult = result;
+    if (sessionStore) await sessionStore.ingest(result);
+    updateController?.onGameActivity(Boolean(result.active));
     return result;
   }).catch(error => {
     console.error("[Telemetry]", error.message);
@@ -43,6 +55,7 @@ const isDev = !app.isPackaged;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
+    title: `VoidCore ${app.getVersion()}`,
     width: 1280,
     height: 800,
     minWidth: 1050,
@@ -79,7 +92,7 @@ function createTray() {
   }
 
   tray = new Tray(icon);
-  tray.setToolTip("VoidCore");
+  tray.setToolTip(`VoidCore ${app.getVersion()}`);
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -109,9 +122,48 @@ function createTray() {
   });
 }
 
-app.whenReady().then(() => {
+app.on("second-instance", () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show(); mainWindow.focus();
+  }
+});
+app.whenReady().then(async () => {
+  if (!hasSingleInstanceLock) return;
+  try {
+    sessionStore = new SessionStore({
+      directory: path.join(app.getPath("userData"), "sessions"),
+      appVersion: app.getVersion()
+    });
+    await sessionStore.init();
+    sessionFlushTimer = setInterval(() => sessionStore.flush(), 30000);
+  } catch (error) {
+    sessionStore = null;
+    console.error("[Sessions] Storage initialization failed");
+  }
+  ipcMain.handle("sessions:list", (_event, options) => sessionStore ? sessionStore.list(options || {}) :
+    { items: [], total: 0, error: "Хранилище истории недоступно. Проверьте права доступа и место на диске." });
+  ipcMain.handle("sessions:get", (_event, id) => {
+    if (!sessionStore) throw new Error("Хранилище истории недоступно.");
+    return sessionStore.get(id);
+  });
+  ipcMain.handle("app:getInfo", () => ({
+    name: "VoidCore",
+    version: app.getVersion(),
+    isPackaged: app.isPackaged
+  }));
   createWindow();
   createTray();
+  updateController = createUpdateController({
+    app, ipcMain,
+    getRunningGames: () => getRunningGames({ fresh: true }),
+    notify: state => {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("updates:state-changed", state);
+    },
+    loadUpdater: () => require("electron-updater").autoUpdater,
+    createToken: () => new (require("builder-util-runtime").CancellationToken)()
+  });
+  updateController.start();
   refreshTelemetry();
   telemetryTimer = setInterval(refreshTelemetry, 2000);
 
@@ -290,9 +342,24 @@ ipcMain.handle(
   });
 });
 
-app.on("before-quit", () => {
+app.on("before-quit", event => {
+  if (canQuit) return;
+  event.preventDefault();
+  if (shuttingDown) return;
+  shuttingDown = true;
+  updateController?.dispose();
   clearInterval(telemetryTimer);
-  stopFPSMonitor();
+  clearInterval(sessionFlushTimer);
+  (async () => {
+    try {
+      if (telemetryInFlight) await telemetryInFlight;
+      if (sessionStore) await sessionStore.close();
+    } finally {
+      stopFPSMonitor();
+      canQuit = true;
+      app.quit();
+    }
+  })().catch(() => { canQuit = true; app.quit(); });
 });
 
 app.on("window-all-closed", (event) => {

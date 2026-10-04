@@ -1,6 +1,7 @@
 const pages = {
   dashboard: document.getElementById("dashboardPage"),
   games: document.getElementById("gamesPage"),
+  sessions: document.getElementById("sessionsPage"),
   optimizer: document.getElementById("optimizerPage"),
   diagnostic: document.getElementById("diagnosticPage"),
   settings: document.getElementById("settingsPage")

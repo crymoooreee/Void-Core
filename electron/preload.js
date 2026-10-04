@@ -1,6 +1,21 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("voidCore", {
+  app: {
+    getInfo: () => ipcRenderer.invoke("app:getInfo")
+  },
+  updates: {
+    getState: () => ipcRenderer.invoke("updates:state"),
+    check: () => ipcRenderer.invoke("updates:check"),
+    download: () => ipcRenderer.invoke("updates:download"),
+    install: () => ipcRenderer.invoke("updates:install"),
+    onState: listener => {
+      if (typeof listener !== "function") return () => {};
+      const handler = (_event, state) => listener(state);
+      ipcRenderer.on("updates:state-changed", handler);
+      return () => ipcRenderer.removeListener("updates:state-changed", handler);
+    }
+  },
   window: {
     minimize: () => ipcRenderer.invoke("window:minimize"),
 
@@ -12,6 +27,10 @@ contextBridge.exposeInMainWorld("voidCore", {
       ipcRenderer.invoke("window:isMaximized")
   },
 
+  sessions: {
+    list: options => ipcRenderer.invoke("sessions:list", options),
+    get: id => ipcRenderer.invoke("sessions:get", id)
+  },
   games: {
       getRunning: () =>
         ipcRenderer.invoke(

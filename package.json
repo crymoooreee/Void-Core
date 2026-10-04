@@ -1,6 +1,6 @@
 {
   "name": "voidcore",
-  "version": "0.4.6",
+  "version": "0.4.8",
   "description": "VoidCore - Gaming Hub, Optimizer and Diagnostic",
   "main": "electron/main.js",
   "author": "VoidCore",
@@ -8,7 +8,19 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder --publish never",
+    "version:check": "node scripts/check-version.js",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "version": "node scripts/check-version.js",
+    "prestart": "npm run version:check",
+    "predev": "npm run version:check",
+    "prebuild": "npm run version:check && node scripts/check-updater.js",
+    "test:version": "node tests/version.test.js",
+    "setup:updates": "npm install --save-exact electron-updater@6.6.2",
+    "test:updates": "node tests/updates.test.js && node tests/update-regressions.test.js",
+    "test:sessions": "node tests/sessions.test.js"
   },
   "devDependencies": {
     "electron": "^37.2.6",
@@ -44,9 +56,18 @@
     "nsis": {
       "installerIcon": "assets/icons/app.ico",
       "uninstallerIcon": "assets/icons/app.ico"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "crymoooreee",
+        "repo": "Void-Core",
+        "releaseType": "release"
+      }
+    ]
   },
   "dependencies": {
+    "electron-updater": "6.6.2",
     "systeminformation": "^5.33.1"
   }
 }

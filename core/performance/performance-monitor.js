@@ -19,6 +19,7 @@ const HISTORY_LENGTH = 60;
 let history = [];
 let lastSample = null;
 let monitoredGamePid = null;
+let lastDetectedGameKey = null;
 
 function findActiveGame(processes) {
     for (const runningProcess of processes) {
@@ -33,6 +34,7 @@ function findActiveGame(processes) {
                 platform: game.platform,
                 image: game.image,
                 pid: runningProcess.pid,
+                startedAt: runningProcess.started || null,
                 cpu: runningProcess.cpu,
                 memory: runningProcess.mem
             };
@@ -110,6 +112,12 @@ async function collectPerformance() {
     const processes = await getProcessSnapshot();
     const game = findActiveGame(processes);
 
+    const gameKey = game ? `${game.pid}:${game.startedAt || ""}:${game.name}` : null;
+    if (gameKey !== lastDetectedGameKey) {
+        resetPerformanceHistory();
+        lastDetectedGameKey = gameKey;
+    }
+
     if (!game) {
         if (monitoredGamePid !== null) {
             stopFPSMonitor();
@@ -159,6 +167,7 @@ async function collectPerformance() {
 
     return {
         active: true,
+        computerProfile: profile,
         game,
         sample,
         history,

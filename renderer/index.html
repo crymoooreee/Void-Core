@@ -38,6 +38,9 @@
           <button class="nav-item" data-page="games">
             <span class="nav-icon">◇</span><span>Games</span>
           </button>
+          <button class="nav-item" data-page="sessions">
+            <span class="nav-icon">◷</span><span>Sessions</span>
+          </button>
           <button class="nav-item" data-page="optimizer">
             <span class="nav-icon">↗</span><span>Optimizer</span>
           </button>
@@ -50,11 +53,12 @@
           <button class="nav-item" data-page="settings">
             <span class="nav-icon">⚙</span><span>Settings</span>
           </button>
-          <div class="version"><span></span> VOIDCORE 0.4.6</div>
+          <div class="version"><span aria-hidden="true"></span> VOIDCORE <b data-app-version aria-live="polite">—</b></div>
         </div>
       </aside>
 
       <main class="content">
+        <button id="updateNotice" class="update-notice hidden" type="button">Доступно обновление. Открыть Settings</button>
         <section id="dashboardPage" class="page active">
           <header class="page-header">
             <div>
@@ -172,6 +176,21 @@
           <div class="empty-page"><div class="empty-icon">◇</div><h2>No games detected</h2><p>Your library will appear here automatically.</p></div>
         </section>
 
+        <section id="sessionsPage" class="page">
+          <header class="page-header">
+            <div><p class="eyebrow">LOCAL HISTORY</p><h1>Игровые сессии</h1><p class="subtitle">История сохраняется на этом компьютере между запусками.</p></div>
+            <button id="refreshSessionsBtn" class="primary-btn" type="button">Обновить</button>
+          </header>
+          <p id="sessionsMessage" class="subtitle" role="status" aria-live="polite"></p>
+          <div id="sessionsList" class="sessions-list"></div>
+          <div class="sessions-pagination">
+            <button id="previousSessionsBtn" class="primary-btn" type="button">Назад</button>
+            <span id="sessionsPageNumber" class="subtitle"></span>
+            <button id="nextSessionsBtn" class="primary-btn" type="button">Далее</button>
+          </div>
+          <article id="sessionDetails" class="panel hidden" aria-live="polite"></article>
+        </section>
+
         <section id="optimizerPage" class="page">
           <header class="page-header">
             <div><p class="eyebrow">PERFORMANCE</p><h1>Optimizer</h1><p class="subtitle">Choose how VoidCore prepares Windows for gaming.</p></div>
@@ -202,16 +221,32 @@
             <div><p class="eyebrow">CONFIGURATION</p><h1>Settings</h1><p class="subtitle">Application behavior and startup preferences.</p></div>
           </header>
           <div class="settings-card">
+            <div class="setting-row"><div><strong>VoidCore</strong><small>Application version</small></div><strong data-app-version aria-live="polite">—</strong></div>
             <div class="setting-row"><div><strong>Start with Windows</strong><small>Launch VoidCore after sign in.</small></div><label class="toggle"><input type="checkbox"><span></span></label></div>
             <div class="setting-row"><div><strong>Minimize to tray</strong><small>Continue monitoring after closing the window.</small></div><label class="toggle"><input type="checkbox" checked><span></span></label></div>
           </div>
+          <article class="settings-card update-panel" aria-labelledby="updatesHeading">
+            <div class="panel-header"><div><p class="eyebrow">GITHUB RELEASES</p><h2 id="updatesHeading">Обновления приложения</h2></div></div>
+            <p id="updateMessage" role="status" aria-live="polite">Получение состояния обновлений…</p>
+            <p id="updateAvailableVersion" class="subtitle"></p>
+            <progress id="updateProgress" class="hidden" max="100" value="0" aria-label="Прогресс скачивания"></progress>
+            <div class="update-actions">
+              <button id="checkUpdateBtn" class="primary-btn" type="button" disabled>Проверить обновления</button>
+              <button id="downloadUpdateBtn" class="primary-btn hidden" type="button">Скачать</button>
+              <button id="installUpdateBtn" class="primary-btn hidden" type="button">Установить и перезапустить</button>
+            </div>
+            <p class="subtitle">Скачивание и установка — только по вашему запросу, вне игры.</p>
+          </article>
         </section>
       </main>
     </div>
   </div>
 
+  <script src="js/version.js"></script>
   <script src="js/games.js"></script>
   <script src="js/performance.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/updates.js"></script>
+  <script src="js/sessions.js"></script>
 </body>
 </html>
