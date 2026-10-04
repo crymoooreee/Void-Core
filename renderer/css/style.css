@@ -871,3 +871,10 @@ h3 {
 .session-event { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 .session-event p, #sessionDetails > p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
 @media (max-width: 820px) { .session-card-header { align-items: flex-start; flex-direction: column; } }
+
+.low-metrics-grid { display:grid; grid-template-columns:repeat(2,1fr); border:1px solid var(--border); border-radius:8px; margin-top:12px; }
+.low-metrics-grid .performance-metric { padding:12px 18px; }
+.low-metrics-grid .performance-metric:last-child { border-right:0; }
+.low-metrics-grid small { display:block; font-size:10px; color:var(--text-secondary); margin-top:5px; }
+.low-window-note { font-size:10px; color:var(--text-secondary); margin:8px 0 14px; }
+#optimizerMessage { margin-top:16px; line-height:1.6; }

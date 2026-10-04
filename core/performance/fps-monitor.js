@@ -2,9 +2,10 @@ const fs = require("fs");
 const path = require("path");
 const { spawn, execFileSync } = require("child_process");
 const os = require("os");
+const { calculateLows } = require("./low-metrics");
 
 // Keep enough frames for 1% Low without allowing memory usage to grow forever.
-const HISTORY_LENGTH = 1200;
+const HISTORY_LENGTH = 12000;
 const LIVE_WINDOW_MS = 500;
 const MAX_VALID_FRAME_TIME_MS = 1000;
 const RESULT_UPDATE_INTERVAL_MS = 250;
@@ -25,12 +26,16 @@ let calculatedFrameCount = 0;
 let lastResultUpdateAt = 0;
 let lastLowUpdateAt = 0;
 let cachedOnePercentLow = null;
+let cachedPointOnePercentLow = null;
+let lowSampleCount = 0;
 
 function createEmptyResult() {
     return {
         fps: null,
         frameTime: null,
         onePercentLow: null,
+        pointOnePercentLow: null,
+        lowSampleCount: 0,
         cpuBusy: null,
         cpuWait: null,
         gpuLatency: null,
@@ -59,6 +64,8 @@ function resetFPSData() {
     lastResultUpdateAt = 0;
     lastLowUpdateAt = 0;
     cachedOnePercentLow = null;
+    cachedPointOnePercentLow = null;
+    lowSampleCount = 0;
 }
 
 function getProjectRoot() {
@@ -193,21 +200,6 @@ function calculateFPS(frames) {
     return totalTime > 0 ? (frames.length * 1000) / totalTime : null;
 }
 
-function calculateOnePercentLow(frames) {
-    if (frames.length < 100) {
-        return null;
-    }
-
-    const slowestCount = Math.max(1, Math.ceil(frames.length * 0.01));
-    const slowest = frames
-        .map(frame => frame.frameTime)
-        .sort((a, b) => b - a)
-        .slice(0, slowestCount);
-    const average = slowest.reduce((sum, value) => sum + value, 0) / slowest.length;
-
-    return average > 0 ? 1000 / average : null;
-}
-
 function getLastValidMetric(frames, property) {
     for (let i = frames.length - 1; i >= 0; i--) {
         const value = frames[i][property];
@@ -225,7 +217,10 @@ function updateResult(now = Date.now()) {
     const last = frameHistory[frameHistory.length - 1];
 
     if (now - lastLowUpdateAt >= LOW_UPDATE_INTERVAL_MS) {
-        cachedOnePercentLow = calculateOnePercentLow(frameHistory);
+        const lows = calculateLows(frameHistory.slice(-HISTORY_LENGTH));
+        cachedOnePercentLow = lows.onePercentLow;
+        cachedPointOnePercentLow = lows.pointOnePercentLow;
+        lowSampleCount = lows.lowSampleCount;
         lastLowUpdateAt = now;
     }
 
@@ -233,6 +228,8 @@ function updateResult(now = Date.now()) {
         fps: calculateFPS(liveFrames),
         frameTime: last.frameTime,
         onePercentLow: cachedOnePercentLow,
+        pointOnePercentLow: cachedPointOnePercentLow,
+        lowSampleCount,
         cpuBusy: getLastValidMetric(liveFrames, "cpuBusy"),
         cpuWait: getLastValidMetric(liveFrames, "cpuWait"),
         gpuLatency: getLastValidMetric(liveFrames, "gpuLatency"),
@@ -488,6 +485,8 @@ function getFPSData() {
     return {
         ...lastResult,
         fps: isStale ? 0 : lastResult.fps,
+        onePercentLow: isStale ? null : lastResult.onePercentLow,
+        pointOnePercentLow: isStale ? null : lastResult.pointOnePercentLow,
         frameTime: isStale ? null : lastResult.frameTime,
         running: Boolean(presentMonProcess),
         pid: monitoredPid,

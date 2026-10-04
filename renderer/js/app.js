@@ -40,24 +40,6 @@ document.getElementById("closeBtn").addEventListener("click", () => {
   window.voidCore.window.close();
 });
 
-document.getElementById("optimizeBtn").addEventListener("click", async () => {
-  const button = document.getElementById("optimizeBtn");
-  const result = document.getElementById("optimizeResult");
-
-  button.disabled = true;
-  button.innerHTML = "<span>⌁</span> Preparing...";
-
-  const response = await window.voidCore.core.optimize();
-
-  result.textContent = response.message;
-  result.classList.remove("hidden");
-
-  setTimeout(() => {
-    button.disabled = false;
-    button.innerHTML = "<span>⚡</span> Optimize PC";
-  }, 800);
-});
-
 // VOIDCORE HARDWARE MONITOR
 
 function formatNumber(value, decimals = 1) {

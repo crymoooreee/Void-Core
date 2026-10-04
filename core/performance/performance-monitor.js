@@ -61,6 +61,8 @@ function toSample(game, fpsData, hardware) {
         fps: fpsData?.fps ?? null,
         frameTime: fpsData?.frameTime ?? null,
         onePercentLow: fpsData?.onePercentLow ?? null,
+        pointOnePercentLow: fpsData?.pointOnePercentLow ?? null,
+        lowSampleCount: fpsData?.lowSampleCount ?? 0,
         capture: {
             running: fpsData?.running ?? false,
             stale: fpsData?.stale ?? false,

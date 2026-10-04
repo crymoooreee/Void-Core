@@ -152,6 +152,11 @@
               <div class="performance-metric"><span>VRAM</span><strong id="performanceVRAM">-- GB</strong></div>
             </div>
 
+            <div class="low-metrics-grid">
+              <div class="performance-metric"><span>1% LOW</span><strong id="performanceOneLow">—</strong><small id="oneLowHint">Нужно 1000 кадров</small></div>
+              <div class="performance-metric"><span>0.1% LOW</span><strong id="performancePointOneLow">—</strong><small id="pointOneLowHint">Нужно 10000 кадров</small></div>
+            </div>
+            <p class="low-window-note">Low: последние 12000 кадров, не вся сессия. Расчёт не чаще раза в секунду.</p>
             <div class="performance-chart">
               <div class="performance-chart-header">
                 <div class="chart-label">RECENT HISTORY</div>
@@ -196,10 +201,18 @@
             <div><p class="eyebrow">PERFORMANCE</p><h1>Optimizer</h1><p class="subtitle">Choose how VoidCore prepares Windows for gaming.</p></div>
           </header>
           <div class="settings-card">
-            <div class="setting-row"><div><strong>Gaming mode</strong><small>Prioritize game-related processes.</small></div><label class="toggle"><input type="checkbox" checked><span></span></label></div>
-            <div class="setting-row"><div><strong>Background apps</strong><small>Reduce selected background activity.</small></div><label class="toggle"><input type="checkbox" checked><span></span></label></div>
-            <div class="setting-row"><div><strong>Notifications</strong><small>Silence interruptions during a session.</small></div><label class="toggle"><input type="checkbox"><span></span></label></div>
+            <div class="setting-row"><div><strong>Автоматический профиль</strong><small>Применять при обнаружении игры и восстанавливать после её закрытия.</small></div><label class="toggle"><input id="optimizerAutomatic" type="checkbox"><span></span></label></div>
+            <div class="setting-row"><div><strong>Приоритет игры</strong><small>Above Normal, без High и Realtime.</small></div><label class="toggle"><input id="optimizerRaiseGame" type="checkbox" checked><span></span></label></div>
+            <div class="setting-row"><div><strong>Снизить приоритет VoidCore</strong><small>Below Normal: меньше конкуренции за CPU, возможна задержка интерфейса.</small></div><label class="toggle"><input id="optimizerLowerApp" type="checkbox" checked><span></span></label></div>
+            <div class="setting-row"><div><strong>Высокая производительность</strong><small>Доступный план Windows, только от сети. Может повысить нагрев и расход энергии.</small></div><label class="toggle"><input id="optimizerHighPerformance" type="checkbox"><span></span></label></div>
+            <div class="setting-row"><div><strong>Отключить запись Xbox Game DVR</strong><small>На время профиля. Может потребоваться перезапуск игры; запись и клипы могут быть недоступны.</small></div><label class="toggle"><input id="optimizerDisableDvr" type="checkbox"><span></span></label></div>
           </div>
+          <p id="optimizerMessage" class="subtitle" role="status" aria-live="polite">Получение настроек…</p>
+          <div class="update-actions">
+            <button id="applyOptimizerBtn" class="primary-btn" type="button">Применить к текущей игре</button>
+            <button id="revertOptimizerBtn" class="primary-btn" type="button">Восстановить</button>
+          </div>
+          <p class="subtitle">Прирост FPS зависит от причины ограничения. Антивирус и службы не отключаются; изменяются только выбранные приоритеты, план питания и два пользовательских параметра Game DVR.</p>
         </section>
 
         <section id="diagnosticPage" class="page">
@@ -248,5 +261,6 @@
   <script src="js/app.js"></script>
   <script src="js/updates.js"></script>
   <script src="js/sessions.js"></script>
+  <script src="js/optimizer.js"></script>
 </body>
 </html>

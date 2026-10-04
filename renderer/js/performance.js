@@ -182,6 +182,7 @@ async function refreshLiveFPS() {
 
     try {
         const data = await window.voidCore.fps.get();
+        renderLowMetrics(data);
         const fps = document.getElementById("performanceFPS");
         const frameTime = document.getElementById("performanceFrameTime");
 
@@ -327,12 +328,14 @@ function updatePerformanceUI(
             status.className = "badge neutral";
         }
 
+        renderLowMetrics(null);
         drawPerformanceChart( [] );
 
         return;
     }
 
     const sample = data.sample;
+    renderLowMetrics(sample);
 
     // FPS
 
@@ -908,3 +911,12 @@ window.addEventListener(
 
     }
 );
+function renderLowMetrics(data) {
+ const usable=data&&(data.running??data.capture?.running)&&!(data.stale??data.capture?.stale);
+ const count=data?.lowSampleCount||0;
+ for(const [valueId,hintId,field,minimum] of [["performanceOneLow","oneLowHint","onePercentLow",1000],["performancePointOneLow","pointOneLowHint","pointOnePercentLow",10000]]){
+  const value=document.getElementById(valueId),hint=document.getElementById(hintId);if(!value||!hint)continue;
+  value.textContent=usable&&Number.isFinite(data[field])?`${data[field].toFixed(1)} FPS`:"—";
+  hint.textContent=!usable?"Ожидание свежих кадров":count<minimum?`Недостаточно данных: ${count}/${minimum}`:`Окно: ${count} кадров`;
+ }
+}

@@ -88,6 +88,16 @@ contextBridge.exposeInMainWorld("voidCore", {
       ipcRenderer.invoke("monitor:getSystemInfo")
   },
 
+  optimizer: {
+    getState: () => ipcRenderer.invoke("optimizer:state"),
+    configure: options => ipcRenderer.invoke("optimizer:configure", options),
+    revert: () => ipcRenderer.invoke("optimizer:revert"),
+    onState: listener => {
+      const handler = (_event, state) => listener(state);
+      ipcRenderer.on("optimizer:changed", handler);
+      return () => ipcRenderer.removeListener("optimizer:changed", handler);
+    }
+  },
   core: {
     optimize: () =>
       ipcRenderer.invoke("core:optimize")

@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require("electron");
 const path = require("path");
 const { createUpdateController } = require("./update-controller");
+const { GamingOptimizer } = require("../core/optimizer/gaming-optimizer");
+const { createWindowsProfile } = require("../core/optimizer/windows-profile");
 const { SessionStore } = require("../core/performance/session-store");
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 if (!hasSingleInstanceLock) app.quit();
@@ -33,6 +35,7 @@ let telemetryResult = { active: false, history: [], diagnostics: [] };
 let telemetryInFlight = null;
 let updateController = null;
 let sessionStore = null;
+let optimizer = null;
 let sessionFlushTimer = null;
 let shuttingDown = false;
 let canQuit = false;
@@ -42,6 +45,7 @@ async function refreshTelemetry() {
   telemetryInFlight = collectPerformance().then(async result => {
     telemetryResult = result;
     if (sessionStore) await sessionStore.ingest(result);
+    if (optimizer) await optimizer.update(result.active ? result.game : null);
     updateController?.onGameActivity(Boolean(result.active));
     return result;
   }).catch(error => {
@@ -152,6 +156,17 @@ app.whenReady().then(async () => {
     version: app.getVersion(),
     isPackaged: app.isPackaged
   }));
+  optimizer = new GamingOptimizer({
+    file: path.join(app.getPath("userData"), "system-profile.json"),
+    priorityFile: path.join(app.getPath("userData"), "optimizer.json"),
+    driver: createWindowsProfile(),
+    getGames: () => getRunningGames({ fresh: true }),
+    onChange: state => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("optimizer:changed", state); }
+  });
+  await optimizer.init();
+  ipcMain.handle("optimizer:state", () => optimizer.snapshot());
+  ipcMain.handle("optimizer:configure", (_event, options) => optimizer.configure(options));
+  ipcMain.handle("optimizer:revert", () => optimizer.revert());
   createWindow();
   createTray();
   updateController = createUpdateController({
@@ -328,12 +343,7 @@ ipcMain.handle(
   }
 );
 
-  ipcMain.handle("core:optimize", () => {
-    return {
-      success: true,
-      message: "Optimization engine will be connected in Stage 4."
-    };
-  });
+  ipcMain.handle("core:optimize", () => optimizer.optimize());
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -354,6 +364,7 @@ app.on("before-quit", event => {
     try {
       if (telemetryInFlight) await telemetryInFlight;
       if (sessionStore) await sessionStore.close();
+      if (optimizer) await optimizer.close();
     } finally {
       stopFPSMonitor();
       canQuit = true;

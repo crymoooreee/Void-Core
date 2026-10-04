@@ -1,6 +1,6 @@
 {
   "name": "voidcore",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "description": "VoidCore - Gaming Hub, Optimizer and Diagnostic",
   "main": "electron/main.js",
   "author": "VoidCore",
@@ -20,7 +20,9 @@
     "test:version": "node tests/version.test.js",
     "setup:updates": "npm install --save-exact electron-updater@6.6.2",
     "test:updates": "node tests/updates.test.js && node tests/update-regressions.test.js",
-    "test:sessions": "node tests/sessions.test.js"
+    "test:sessions": "node tests/sessions.test.js",
+    "test:low-optimizer": "node tests/low-optimizer.test.js",
+    "test:system-optimizer": "node tests/system-optimizer.test.js"
   },
   "devDependencies": {
     "electron": "^37.2.6",
