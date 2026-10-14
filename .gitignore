@@ -4,3 +4,13 @@ yarn-debug.log*
 yarn-error.log*
 temp/
 dist/
+
+# Account server secrets and local databases
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+account-session.bin

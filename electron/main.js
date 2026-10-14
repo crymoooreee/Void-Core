@@ -1,5 +1,7 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require("electron");
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, safeStorage, shell } = require("electron");
 const path = require("path");
+const { AccountClient } = require("./account-client");
+const { LocalSteamLibrary } = require("../core/steam/local-library");
 const { createUpdateController } = require("./update-controller");
 const { GamingOptimizer } = require("../core/optimizer/gaming-optimizer");
 const { createWindowsProfile } = require("../core/optimizer/windows-profile");
@@ -36,6 +38,7 @@ let telemetryInFlight = null;
 let updateController = null;
 let sessionStore = null;
 let optimizer = null;
+let accountClient = null;
 let sessionFlushTimer = null;
 let shuttingDown = false;
 let canQuit = false;
@@ -76,6 +79,8 @@ function createWindow() {
     }
   });
 
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  mainWindow.webContents.on("will-navigate", event => event.preventDefault());
   mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
 
   mainWindow.once("ready-to-show", () => {
@@ -167,8 +172,42 @@ app.whenReady().then(async () => {
   ipcMain.handle("optimizer:state", () => optimizer.snapshot());
   ipcMain.handle("optimizer:configure", (_event, options) => optimizer.configure(options));
   ipcMain.handle("optimizer:revert", () => optimizer.revert());
+  accountClient = new AccountClient({
+    baseURL: (!app.isPackaged && process.env.VOIDCORE_API_URL) || require("./service-config.json").apiURL,
+    file: path.join(app.getPath("userData"), "account-session.bin"), safeStorage,
+    openExternal: url => shell.openExternal(url), allowLocalHTTP: !app.isPackaged,
+    onChange: state => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("account:changed", state); }
+  });
+  const steamLibrary = new LocalSteamLibrary({ openExternal: url => shell.openExternal(url) });
+  function handleAccount(channel, fn) {
+    ipcMain.handle(channel, async (event, value) => {
+      if (!mainWindow || event.sender !== mainWindow.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw Error("Untrusted account request");
+      return fn(value);
+    });
+  }
+  handleAccount("account:state", () => accountClient.snapshot());
+  handleAccount("account:register", data => accountClient.register(data));
+  handleAccount("account:login", data => accountClient.login(data));
+  handleAccount("account:resend", data => accountClient.mail("resend", data));
+  handleAccount("account:forgot", data => accountClient.mail("forgot", data));
+  handleAccount("account:refresh", () => accountClient.refreshProfile());
+  handleAccount("account:logout", () => accountClient.logout());
+  handleAccount("account:steam-link", () => accountClient.startSteam());
+  handleAccount("account:steam-stop", () => accountClient.cancelSteam());
+  handleAccount("account:steam-unlink", () => accountClient.unlinkSteam());
+  handleAccount("account:steam-library", () => accountClient.library());
+  handleAccount("steam:local", () => steamLibrary.scan());
+  handleAccount("steam:launch", appid => steamLibrary.launch(appid));
+  handleAccount("steam:open", async () => { await shell.openExternal("steam://open/main"); return { ok: true }; });
+  handleAccount("account:steam-profile", async () => {
+    const id = accountClient.snapshot().user?.steam?.id;
+    if (typeof id !== "string" || !/^\d{17}$/.test(id)) throw Error("Steam не привязан.");
+    await shell.openExternal("https://steamcommunity.com/profiles/" + id);
+    return { ok: true };
+  });
   createWindow();
   createTray();
+  accountClient.init().catch(() => accountClient.publish("Сохранённая сессия недоступна."));
   updateController = createUpdateController({
     app, ipcMain,
     getRunningGames: () => getRunningGames({ fresh: true }),
@@ -357,6 +396,7 @@ app.on("before-quit", event => {
   event.preventDefault();
   if (shuttingDown) return;
   shuttingDown = true;
+  accountClient?.close();
   updateController?.dispose();
   clearInterval(telemetryTimer);
   clearInterval(sessionFlushTimer);

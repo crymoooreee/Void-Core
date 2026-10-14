@@ -14,8 +14,8 @@
     lastState = state;
     const confirmed = Boolean(state.availableVersion) && ["available", "downloading", "downloaded", "installing"].includes(state.status);
     const busy = actionPending || ["checking", "downloading", "installing"].includes(state.status);
-    message.textContent = state.message;
-    version.textContent = confirmed ? `Новая версия: ${state.availableVersion}` : "";
+    message.textContent = vcMsg(state.message);
+    version.textContent = confirmed ? vcMsg(`Новая версия: ${state.availableVersion}`) : "";
     check.disabled = busy || ["disabled", "downloaded"].includes(state.status);
     download.classList.toggle("hidden", !confirmed || state.status !== "available");
     download.disabled = busy;
@@ -24,24 +24,25 @@
     progress.classList.toggle("hidden", state.status !== "downloading");
     progress.value = state.progress || 0;
     notice.classList.toggle("hidden", !confirmed || !["available", "downloaded"].includes(state.status));
-    notice.textContent = state.status === "downloaded" ? "Обновление скачано. Открыть Settings" : "Доступно обновление. Открыть Settings";
+    notice.textContent = state.status === "downloaded" ? vcT("Обновление скачано. Открыть Settings") : vcT("Доступно обновление. Открыть Settings");
   }
   async function action(method) {
     if (actionPending) return;
     actionPending = true;
     if (lastState) render(lastState);
     try { render(await api[method]()); }
-    catch (error) { message.textContent = error.message; }
+    catch (error) { message.textContent = vcMsg(error.message); }
     finally { actionPending = false; if (lastState) render(lastState); }
   }
   check.addEventListener("click", () => action("check"));
   download.addEventListener("click", () => action("download"));
   install.addEventListener("click", () => {
-    if (window.confirm("Установить обновление? VoidCore закроется и перезапустится. Перед этим закройте игру.")) action("install");
+    if (window.confirm(vcT("Установить обновление? VoidCore закроется и перезапустится. Перед этим закройте игру."))) action("install");
   });
   notice.addEventListener("click", () => document.querySelector('.nav-item[data-page="settings"]').click());
   let stateEventReceived = false;
   const unsubscribe = api.onState(state => { stateEventReceived = true; render(state); });
-  api.getState().then(state => { if (!stateEventReceived) render(state); }).catch(error => { message.textContent = error.message; });
+  api.getState().then(state => { if (!stateEventReceived) render(state); }).catch(error => { message.textContent = vcMsg(error.message); });
   window.addEventListener("unload", unsubscribe, { once: true });
+  window.addEventListener('voidcore:language-changed',()=>{if(lastState)render(lastState);});
 })();

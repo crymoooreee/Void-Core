@@ -1,4 +1,6 @@
 let performanceData = null;
+let localizedFPSCache = null;
+let localizedAlertCache = null;
 let performanceRequestInFlight = false;
 let fpsRequestInFlight = false;
 let lastDiagnosticId = null;
@@ -36,7 +38,7 @@ function getMetricConfig(metric) {
 
         case "frameTime":
             return {
-                label: "FRAME TIME",
+                label: vcT("FRAME TIME"),
                 unit: " ms",
                 max: null
             };
@@ -182,6 +184,7 @@ async function refreshLiveFPS() {
 
     try {
         const data = await window.voidCore.fps.get();
+        localizedFPSCache = data;
         renderLowMetrics(data);
         const fps = document.getElementById("performanceFPS");
         const frameTime = document.getElementById("performanceFrameTime");
@@ -191,7 +194,7 @@ async function refreshLiveFPS() {
         }
 
         if (frameTime && data.frameTime != null) {
-            frameTime.textContent = `${Number(data.frameTime).toFixed(1)} ms`;
+            frameTime.textContent = `${Number(data.frameTime).toFixed(1)} ${vcT("ms")}`;
         }
     } catch (error) {
         console.error("VoidCore live FPS:", error);
@@ -309,7 +312,7 @@ function updatePerformanceUI(
             fps.textContent = "--";
 
         if (frametime)
-            frametime.textContent = "-- ms";
+            frametime.textContent = vcT("-- ms");
 
         if (cpu)
             cpu.textContent = "--%";
@@ -318,13 +321,13 @@ function updatePerformanceUI(
             gpu.textContent = "--%";
 
         if (ram)
-            ram.textContent = "-- GB";
+            ram.textContent = vcT("-- GB");
 
         if (vram)
-            vram.textContent = "-- GB";
+            vram.textContent = vcT("-- GB");
 
         if (status) {
-            status.textContent = "WAITING";
+            status.textContent = vcT("WAITING");
             status.className = "badge neutral";
         }
 
@@ -359,8 +362,8 @@ function updatePerformanceUI(
             sample.frameTime !== undefined
                 ? `${Number(
                     sample.frameTime
-                ).toFixed(1)} ms`
-                : "-- ms";
+                ).toFixed(1)} ${vcT("ms")}`
+                : vcT("-- ms");
     }
 
     // CPU
@@ -390,7 +393,7 @@ function updatePerformanceUI(
         ram.textContent =
             `${Number(
                 sample.ram?.used ?? 0
-            ).toFixed(1)} GB`;
+            ).toFixed(1)} ${vcT("GB")}`;
     }
 
     // VRAM
@@ -400,7 +403,7 @@ function updatePerformanceUI(
         vram.textContent =
             `${Number(
                 sample.vram?.used ?? 0
-            ).toFixed(1)} GB`;
+            ).toFixed(1)} ${vcT("GB")}`;
     }
 
     // STATUS
@@ -408,7 +411,7 @@ function updatePerformanceUI(
     if (status) {
 
         status.textContent =
-            "MONITORING";
+            vcT("MONITORING");
 
         status.className =
             "badge accent";
@@ -435,13 +438,14 @@ function renderFalsePositives(events) {
         return;
     }
     const latest = events[0];
-    summary.textContent = `Отфильтровано ложных срабатываний: ${events.length}. Последнее: ${latest.title}.`;
+    summary.textContent = vcMsg(`Отфильтровано ложных срабатываний: ${events.length}. Последнее: ${vcMsg(latest.title)}.`);
     summary.classList.remove("hidden");
 }
 
 function showDiagnosticAlert(event) {
     if (!event || event.id === lastDiagnosticId) return;
     lastDiagnosticId = event.id;
+    localizedAlertCache = event;
 
     const alert = document.getElementById("diagnosticAlert");
     const title = document.getElementById("diagnosticAlertTitle");
@@ -449,9 +453,9 @@ function showDiagnosticAlert(event) {
     const fix = document.getElementById("diagnosticAlertFix");
     if (!alert || !title || !text || !fix) return;
 
-    title.textContent = `${event.beforeFps} → ${event.fps} FPS: ${event.title}`;
-    text.textContent = event.explanation;
-    fix.textContent = event.recommendations?.[0] || "Откройте Diagnostic для подробностей.";
+    title.textContent = `${event.beforeFps} → ${event.fps} FPS: ${vcMsg(event.title)}`;
+    text.textContent = vcMsg(event.explanation);
+    fix.textContent = vcMsg(event.recommendations?.[0]) || vcT("Откройте Diagnostic для подробностей.");
     alert.classList.remove("hidden");
 }
 
@@ -467,8 +471,8 @@ function renderDiagnostics(events) {
         container.innerHTML = `
             <div id="diagnosticEmpty" class="empty-page">
                 <div class="empty-icon">◉</div>
-                <h2>No FPS drops detected</h2>
-                <p>VoidCore will show the probable cause and recommendations here.</p>
+                <h2>${vcT("No FPS drops detected")}</h2>
+                <p>${vcT("VoidCore will show the probable cause and recommendations here.")}</p>
             </div>
         `;
         return;
@@ -477,13 +481,13 @@ function renderDiagnostics(events) {
     container.innerHTML = events.map(event => {
         const metrics = event.metrics || {};
         const recommendations = (event.recommendations || [])
-            .map(item => `<li>${escapeHTML(item)}</li>`)
+            .map(item => `<li>${escapeHTML(vcMsg(item))}</li>`)
             .join("");
         const processes = (event.topProcesses || [])
             .slice(0, 3)
             .map(item => `<span>${escapeHTML(item.name)} · CPU ${escapeHTML(item.cpu)}%</span>`)
             .join("");
-        const time = new Date(event.timestamp).toLocaleTimeString([], {
+        const time = new Date(event.timestamp).toLocaleTimeString(window.VoidCoreI18n.locale(), {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit"
@@ -494,24 +498,24 @@ function renderDiagnostics(events) {
                 <div class="diagnostic-card-header">
                     <div>
                         <p class="eyebrow">${escapeHTML(event.game?.name)} · ${time}</p>
-                        <h2>${escapeHTML(event.title)}</h2>
+                        <h2>${escapeHTML(vcMsg(event.title))}</h2>
                     </div>
                     <div class="fps-drop-value">
                         <strong>${escapeHTML(event.beforeFps)} → ${escapeHTML(event.fps)}</strong>
                         <span>FPS · −${escapeHTML(event.dropPercent)}%</span>
                     </div>
                 </div>
-                <p class="diagnostic-explanation">${escapeHTML(event.explanation)}</p>
+                <p class="diagnostic-explanation">${escapeHTML(vcMsg(event.explanation))}</p>
                 <div class="diagnostic-metrics">
                     <span>CPU <b>${escapeHTML(metrics.cpu ?? "--")}%</b></span>
                     <span>GPU <b>${escapeHTML(metrics.gpu ?? "--")}%</b></span>
                     <span>RAM <b>${escapeHTML(metrics.ram ?? "--")}%</b></span>
                     <span>VRAM <b>${escapeHTML(metrics.vram ?? "--")}%</b></span>
-                    <span>Frame Time <b>${escapeHTML(event.frameTime ?? "--")} ms</b></span>
+                    <span>${vcT("Frame Time")} <b>${escapeHTML(event.frameTime ?? "--")} ${vcT("ms")}</b></span>
                 </div>
-                ${processes ? `<div class="diagnostic-processes"><strong>Активные процессы</strong>${processes}</div>` : ""}
+                ${processes ? `<div class="diagnostic-processes"><strong>${vcT("Активные процессы")}</strong>${processes}</div>` : ""}
                 <div class="diagnostic-recommendations">
-                    <strong>Как исправить</strong>
+                    <strong>${vcT("Как исправить")}</strong>
                     <ul>${recommendations}</ul>
                 </div>
             </article>
@@ -917,6 +921,12 @@ function renderLowMetrics(data) {
  for(const [valueId,hintId,field,minimum] of [["performanceOneLow","oneLowHint","onePercentLow",1000],["performancePointOneLow","pointOneLowHint","pointOnePercentLow",10000]]){
   const value=document.getElementById(valueId),hint=document.getElementById(hintId);if(!value||!hint)continue;
   value.textContent=usable&&Number.isFinite(data[field])?`${data[field].toFixed(1)} FPS`:"—";
-  hint.textContent=!usable?"Ожидание свежих кадров":count<minimum?`Недостаточно данных: ${count}/${minimum}`:`Окно: ${count} кадров`;
+  hint.textContent=!usable?vcT("Ожидание свежих кадров"):count<minimum?vcMsg(`Недостаточно данных: ${count}/${minimum}`):vcMsg(`Окно: ${count} кадров`);
  }
 }
+
+window.addEventListener('voidcore:language-changed',()=>{
+ if(performanceData){updatePerformanceUI(performanceData);diagnosticRenderKey=null;renderDiagnostics(performanceData.diagnostics||[]);renderFalsePositives(performanceData.suppressedEvents||[]);drawPerformanceChart(performanceData.history||[]);}
+ if(localizedFPSCache)renderLowMetrics(localizedFPSCache);
+ if(localizedAlertCache){const event=localizedAlertCache;document.getElementById('diagnosticAlertTitle').textContent=`${event.beforeFps} → ${event.fps} FPS: ${vcMsg(event.title)}`;document.getElementById('diagnosticAlertText').textContent=vcMsg(event.explanation);document.getElementById('diagnosticAlertFix').textContent=vcMsg(event.recommendations?.[0])||vcT('Откройте Diagnostic для подробностей.');}
+});

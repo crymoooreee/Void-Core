@@ -878,3 +878,89 @@ h3 {
 .low-metrics-grid small { display:block; font-size:10px; color:var(--text-secondary); margin-top:5px; }
 .low-window-note { font-size:10px; color:var(--text-secondary); margin:8px 0 14px; }
 #optimizerMessage { margin-top:16px; line-height:1.6; }
+
+/* Account and Steam: no telemetry polling or external scripts. */
+.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.account-panel{padding:22px;margin-bottom:18px;min-width:0}.account-panel h2{margin-bottom:16px}.account-panel label{display:block;margin-bottom:14px;color:#b8c0d0}.account-panel input{display:block;width:100%;margin-top:8px;padding:11px 13px;background:#0b0f16;color:#eef1fa;border:1px solid #30394b;border-radius:9px;box-sizing:border-box;font:inherit}.account-panel input:focus{outline:2px solid #7c8cff;outline-offset:1px}.account-actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.account-notice{padding:14px 18px;background:#151b29;border:1px solid #303c57;border-radius:10px;margin-bottom:18px;overflow-wrap:anywhere}.account-panel [hidden]{display:none!important}.account-panel .subtitle{line-height:1.6;margin:12px 0}.steam-avatar{width:64px;height:64px;border-radius:12px}.steam-game-list{display:grid;gap:8px;margin-top:14px;max-height:380px;overflow:auto}.steam-game-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px;background:#111721;border-radius:9px}.steam-game-row span{overflow-wrap:anywhere;min-width:0}.steam-game-row button{flex-shrink:0}.account-panel button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:1100px){.account-grid{grid-template-columns:1fr}}
+
+/* Account / Steam button polish — aligned with the existing dark theme. */
+.secondary-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 100ms ease;
+}
+.secondary-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: rgba(124, 140, 255, .45);
+  color: #fff;
+}
+.secondary-btn:active:not(:disabled) { transform: translateY(1px); }
+.secondary-btn:focus-visible,
+.account-panel .primary-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.account-panel .primary-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-height: 42px;
+  padding: 10px 18px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: normal;
+}
+.account-panel .account-actions { align-items: stretch; }
+#accountForm .account-actions > button { flex: 1 1 155px; }
+.account-panel > .secondary-btn,
+#accountProfile > .secondary-btn { margin-top: 10px; }
+.secondary-btn:disabled,
+.account-panel .secondary-btn:disabled {
+  background: #141a23;
+  color: #8490a3;
+  border-color: #29313e;
+  opacity: 1;
+  cursor: not-allowed;
+  transform: none;
+}
+.account-panel .primary-btn:disabled {
+  background: #343e70;
+  color: #bdc5e6;
+  opacity: 1;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+.steam-game-row .secondary-btn { min-height: 36px; padding: 8px 14px; }
+@media (prefers-reduced-motion: reduce) {
+  .secondary-btn { transition: none; }
+}
+
+/* Steam Hub replaces the Games catalogue. */
+.account-grid-single{grid-template-columns:minmax(0,640px)}
+.steam-hub-panel{padding:24px;margin-bottom:18px}.steam-hub-panel .subtitle{line-height:1.6;margin:14px 0}
+.steam-hub-profile{display:flex;align-items:center;gap:22px}.steam-hub-profile img{width:88px;height:88px;object-fit:cover;border-radius:16px;border:1px solid var(--border-strong)}.steam-hub-profile [hidden]{display:none!important}.steam-hub-profile h2{margin:0;font-size:24px}.steam-hub-profile .subtitle{margin:8px 0 12px;overflow-wrap:anywhere}
+.steam-hub-actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 10px}.steam-hub-actions .primary-btn{width:auto;padding:10px 18px;min-height:40px;height:auto;font-size:13px}.steam-hub-actions button:disabled{cursor:not-allowed}.steam-hub-actions .primary-btn:disabled{background:#343e70;color:#bdc5e6;opacity:1;filter:none}
+.steam-hub-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}.steam-hub-metrics>div{padding:18px;background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius)}.steam-hub-metrics span{display:block;color:var(--text-secondary);font-size:12px}.steam-hub-metrics strong{display:block;margin-top:10px;font-size:28px;font-weight:650;color:var(--accent)}
+.steam-hub-history{display:grid;gap:10px;margin-top:18px}.steam-hub-session{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:16px;background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius)}.steam-hub-session h3{font-size:14px;margin:0}.steam-hub-session p{margin:5px 0 0;color:var(--text-secondary);font-size:12px}.steam-hub-session strong{color:var(--success);white-space:nowrap;font-size:16px}.steam-hub-session div{min-width:0;overflow-wrap:anywhere}
+@media(max-width:1100px){.steam-hub-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Local language setting. */
+#languageSelect{min-width:155px;max-width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:#151a28;color:#eef1ff;font:inherit;cursor:pointer}#languageSelect:focus-visible{outline:2px solid #7c8cff;outline-offset:3px}#languageSelect option{background:#151a28;color:#eef1ff}#languageSaveMessage:empty{display:none}#languageSaveMessage{color:#ffb86c;font-size:12px;margin:12px 0 0}.brand-tagline{max-width:340px}

@@ -11,7 +11,7 @@
     document.title = `VoidCore ${info.version}`;
   } catch (error) {
     document.querySelectorAll("[data-app-version]").forEach(element => {
-      element.textContent = "unavailable";
+      element.textContent = vcT("unavailable");
     });
     console.error("[Version]", error.message);
   }

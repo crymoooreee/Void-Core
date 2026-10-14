@@ -1,266 +1,280 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta
-    http-equiv="Content-Security-Policy"
-    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;"
-  >
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VoidCore</title>
-  <link rel="icon" type="image/png" href="../assets/icons/app.png">
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="utf-8"/>
+<meta content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data: https://avatars.steamstatic.com https://avatars.cloudflare.steamstatic.com https://avatars.akamai.steamstatic.com;" http-equiv="Content-Security-Policy"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VoidCore</title>
+<link href="../assets/icons/app.png" rel="icon" type="image/png"/>
+<link href="css/style.css" rel="stylesheet"/>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="titlebar">
-      <div class="brand" aria-label="VoidCore">
-        <img class="brand-logo" src="../assets/branding/void-core-mark.svg" alt="" width="32" height="32" draggable="false">
-        <div class="brand-copy">
-          <div class="brand-name">VOID <span>CORE</span></div>
-          <div class="brand-tagline">PERFORMANCE DIAGNOSTICS</div>
-        </div>
-      </div>
-
-      <div class="window-controls">
-        <button id="minimizeBtn" class="window-btn" aria-label="Minimize">−</button>
-        <button id="maximizeBtn" class="window-btn" aria-label="Maximize">□</button>
-        <button id="closeBtn" class="window-btn close" aria-label="Close">×</button>
-      </div>
-    </header>
-
-    <div class="layout">
-      <aside class="sidebar">
-        <nav class="nav" aria-label="Main navigation">
-          <button class="nav-item active" data-page="dashboard">
-            <span class="nav-icon">⌂</span><span>Overview</span>
-          </button>
-          <button class="nav-item" data-page="games">
-            <span class="nav-icon">◇</span><span>Games</span>
-          </button>
-          <button class="nav-item" data-page="sessions">
-            <span class="nav-icon">◷</span><span>Sessions</span>
-          </button>
-          <button class="nav-item" data-page="optimizer">
-            <span class="nav-icon">↗</span><span>Optimizer</span>
-          </button>
-          <button class="nav-item" data-page="diagnostic">
-            <span class="nav-icon">◎</span><span>Diagnostic</span>
-          </button>
-        </nav>
-
-        <div class="sidebar-bottom">
-          <button class="nav-item" data-page="settings">
-            <span class="nav-icon">⚙</span><span>Settings</span>
-          </button>
-          <div class="version"><span aria-hidden="true"></span> VOIDCORE <b data-app-version aria-live="polite">—</b></div>
-        </div>
-      </aside>
-
-      <main class="content">
-        <button id="updateNotice" class="update-notice hidden" type="button">Доступно обновление. Открыть Settings</button>
-        <section id="dashboardPage" class="page active">
-          <header class="page-header">
-            <div>
-              <p class="eyebrow">OVERVIEW</p>
-              <h1>System performance</h1>
-              <p class="subtitle">Live hardware and game telemetry.</p>
-            </div>
-            <div class="system-status"><span class="status-dot"></span>System ready</div>
-          </header>
-
-          <div class="metrics-grid">
-            <article class="metric-card">
-              <div class="metric-top"><span>CPU</span><span class="metric-icon">01</span></div>
-              <div class="metric-value">--<small>%</small></div>
-              <div class="metric-footer"><span>Temperature</span><strong>--°C</strong></div>
-            </article>
-            <article class="metric-card">
-              <div class="metric-top"><span>GPU</span><span class="metric-icon">02</span></div>
-              <div class="metric-value">--<small>%</small></div>
-              <div class="metric-footer"><span>Temperature</span><strong>--°C</strong></div>
-            </article>
-            <article class="metric-card">
-              <div class="metric-top"><span>RAM</span><span class="metric-icon">03</span></div>
-              <div class="metric-value">--<small> GB</small></div>
-              <div class="metric-footer"><span>Available</span><strong>-- GB</strong></div>
-            </article>
-            <article class="metric-card">
-              <div class="metric-top"><span>VRAM</span><span class="metric-icon">04</span></div>
-              <div class="metric-value">--<small> GB</small></div>
-              <div class="metric-footer"><span>Available</span><strong>-- GB</strong></div>
-            </article>
-          </div>
-
-          <div class="dashboard-grid">
-            <article id="active-game" class="panel active-game-panel">
-              <div class="panel-header">
-                <div>
-                  <p class="eyebrow">ACTIVE SESSION</p>
-                  <h2 id="activeGameName">No game running</h2>
-                </div>
-                <span id="activeGameBadge" class="badge neutral">IDLE</span>
-              </div>
-              <div id="activeGame" class="game-empty">
-                <div class="game-empty-icon">◇</div>
-                <h3>Waiting for a game</h3>
-                <p>Monitoring starts automatically when a supported game is detected.</p>
-              </div>
-            </article>
-
-            <article class="panel quick-panel">
-              <div class="panel-header">
-                <div>
-                  <p class="eyebrow">QUICK ACTION</p>
-                  <h2>Gaming profile</h2>
-                </div>
-                <span class="badge accent">READY</span>
-              </div>
-              <p class="panel-description">Prepare Windows and prioritize your active game session.</p>
-              <button id="optimizeBtn" class="primary-btn"><span>↗</span> Optimize PC</button>
-              <div id="optimizeResult" class="action-result hidden"></div>
-            </article>
-          </div>
-
-
-          <aside id="diagnosticAlert" class="diagnostic-alert hidden" role="alert">
-            <button id="dismissDiagnostic" class="diagnostic-alert-close" aria-label="Close">×</button>
-            <p class="eyebrow">FPS DROP DETECTED</p>
-            <h3 id="diagnosticAlertTitle">Performance drop detected</h3>
-            <p id="diagnosticAlertText"></p>
-            <div class="diagnostic-alert-fix">
-              <strong>Что сделать</strong>
-              <span id="diagnosticAlertFix"></span>
-            </div>
-          </aside>
-
-          <article class="panel performance-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">LIVE TELEMETRY</p>
-                <h2>Game performance</h2>
-              </div>
-              <span class="badge neutral" id="performanceStatus">WAITING</span>
-            </div>
-
-            <div class="performance-grid">
-              <div class="performance-metric primary"><span>FPS</span><strong id="performanceFPS">--</strong></div>
-              <div class="performance-metric"><span>FRAME TIME</span><strong id="performanceFrameTime">-- ms</strong></div>
-              <div class="performance-metric"><span>CPU</span><strong id="performanceCPU">--%</strong></div>
-              <div class="performance-metric"><span>GPU</span><strong id="performanceGPU">--%</strong></div>
-              <div class="performance-metric"><span>RAM</span><strong id="performanceRAM">-- GB</strong></div>
-              <div class="performance-metric"><span>VRAM</span><strong id="performanceVRAM">-- GB</strong></div>
-            </div>
-
-            <div class="low-metrics-grid">
-              <div class="performance-metric"><span>1% LOW</span><strong id="performanceOneLow">—</strong><small id="oneLowHint">Нужно 1000 кадров</small></div>
-              <div class="performance-metric"><span>0.1% LOW</span><strong id="performancePointOneLow">—</strong><small id="pointOneLowHint">Нужно 10000 кадров</small></div>
-            </div>
-            <p class="low-window-note">Low: последние 12000 кадров, не вся сессия. Расчёт не чаще раза в секунду.</p>
-            <div class="performance-chart">
-              <div class="performance-chart-header">
-                <div class="chart-label">RECENT HISTORY</div>
-                <div class="chart-tabs" aria-label="Chart metrics">
-                  <button class="chart-tab active" data-metric="fps">FPS</button>
-                  <button class="chart-tab" data-metric="frameTime">Frame time</button>
-                  <button class="chart-tab active" data-metric="cpu">CPU</button>
-                  <button class="chart-tab" data-metric="gpu">GPU</button>
-                  <button class="chart-tab" data-metric="ram">RAM</button>
-                  <button class="chart-tab" data-metric="vram">VRAM</button>
-                </div>
-              </div>
-              <canvas id="performanceChart" height="120"></canvas>
-            </div>
-          </article>
-        </section>
-
-        <section id="gamesPage" class="page">
-          <header class="page-header">
-            <div><p class="eyebrow">LIBRARY</p><h1>Games</h1><p class="subtitle">Detected games and recent sessions.</p></div>
-          </header>
-          <div class="empty-page"><div class="empty-icon">◇</div><h2>No games detected</h2><p>Your library will appear here automatically.</p></div>
-        </section>
-
-        <section id="sessionsPage" class="page">
-          <header class="page-header">
-            <div><p class="eyebrow">LOCAL HISTORY</p><h1>Игровые сессии</h1><p class="subtitle">История сохраняется на этом компьютере между запусками.</p></div>
-            <button id="refreshSessionsBtn" class="primary-btn" type="button">Обновить</button>
-          </header>
-          <p id="sessionsMessage" class="subtitle" role="status" aria-live="polite"></p>
-          <div id="sessionsList" class="sessions-list"></div>
-          <div class="sessions-pagination">
-            <button id="previousSessionsBtn" class="primary-btn" type="button">Назад</button>
-            <span id="sessionsPageNumber" class="subtitle"></span>
-            <button id="nextSessionsBtn" class="primary-btn" type="button">Далее</button>
-          </div>
-          <article id="sessionDetails" class="panel hidden" aria-live="polite"></article>
-        </section>
-
-        <section id="optimizerPage" class="page">
-          <header class="page-header">
-            <div><p class="eyebrow">PERFORMANCE</p><h1>Optimizer</h1><p class="subtitle">Choose how VoidCore prepares Windows for gaming.</p></div>
-          </header>
-          <div class="settings-card">
-            <div class="setting-row"><div><strong>Автоматический профиль</strong><small>Применять при обнаружении игры и восстанавливать после её закрытия.</small></div><label class="toggle"><input id="optimizerAutomatic" type="checkbox"><span></span></label></div>
-            <div class="setting-row"><div><strong>Приоритет игры</strong><small>Above Normal, без High и Realtime.</small></div><label class="toggle"><input id="optimizerRaiseGame" type="checkbox" checked><span></span></label></div>
-            <div class="setting-row"><div><strong>Снизить приоритет VoidCore</strong><small>Below Normal: меньше конкуренции за CPU, возможна задержка интерфейса.</small></div><label class="toggle"><input id="optimizerLowerApp" type="checkbox" checked><span></span></label></div>
-            <div class="setting-row"><div><strong>Высокая производительность</strong><small>Доступный план Windows, только от сети. Может повысить нагрев и расход энергии.</small></div><label class="toggle"><input id="optimizerHighPerformance" type="checkbox"><span></span></label></div>
-            <div class="setting-row"><div><strong>Отключить запись Xbox Game DVR</strong><small>На время профиля. Может потребоваться перезапуск игры; запись и клипы могут быть недоступны.</small></div><label class="toggle"><input id="optimizerDisableDvr" type="checkbox"><span></span></label></div>
-          </div>
-          <p id="optimizerMessage" class="subtitle" role="status" aria-live="polite">Получение настроек…</p>
-          <div class="update-actions">
-            <button id="applyOptimizerBtn" class="primary-btn" type="button">Применить к текущей игре</button>
-            <button id="revertOptimizerBtn" class="primary-btn" type="button">Восстановить</button>
-          </div>
-          <p class="subtitle">Прирост FPS зависит от причины ограничения. Антивирус и службы не отключаются; изменяются только выбранные приоритеты, план питания и два пользовательских параметра Game DVR.</p>
-        </section>
-
-        <section id="diagnosticPage" class="page">
-          <header class="page-header">
-            <div><p class="eyebrow">ANALYSIS</p><h1>Diagnostic</h1><p class="subtitle">Understand performance drops and bottlenecks.</p></div>
-          </header>
-          <div id="falsePositiveSummary" class="false-positive-summary hidden"></div>
-          <div id="diagnosticEvents" class="diagnostic-events">
-            <div id="diagnosticEmpty" class="empty-page">
-              <div class="empty-icon">◎</div>
-              <h2>No FPS drops detected</h2>
-              <p>VoidCore will show the probable cause and recommendations here.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="settingsPage" class="page">
-          <header class="page-header">
-            <div><p class="eyebrow">CONFIGURATION</p><h1>Settings</h1><p class="subtitle">Application behavior and startup preferences.</p></div>
-          </header>
-          <div class="settings-card">
-            <div class="setting-row"><div><strong>VoidCore</strong><small>Application version</small></div><strong data-app-version aria-live="polite">—</strong></div>
-            <div class="setting-row"><div><strong>Start with Windows</strong><small>Launch VoidCore after sign in.</small></div><label class="toggle"><input type="checkbox"><span></span></label></div>
-            <div class="setting-row"><div><strong>Minimize to tray</strong><small>Continue monitoring after closing the window.</small></div><label class="toggle"><input type="checkbox" checked><span></span></label></div>
-          </div>
-          <article class="settings-card update-panel" aria-labelledby="updatesHeading">
-            <div class="panel-header"><div><p class="eyebrow">GITHUB RELEASES</p><h2 id="updatesHeading">Обновления приложения</h2></div></div>
-            <p id="updateMessage" role="status" aria-live="polite">Получение состояния обновлений…</p>
-            <p id="updateAvailableVersion" class="subtitle"></p>
-            <progress id="updateProgress" class="hidden" max="100" value="0" aria-label="Прогресс скачивания"></progress>
-            <div class="update-actions">
-              <button id="checkUpdateBtn" class="primary-btn" type="button" disabled>Проверить обновления</button>
-              <button id="downloadUpdateBtn" class="primary-btn hidden" type="button">Скачать</button>
-              <button id="installUpdateBtn" class="primary-btn hidden" type="button">Установить и перезапустить</button>
-            </div>
-            <p class="subtitle">Скачивание и установка — только по вашему запросу, вне игры.</p>
-          </article>
-        </section>
-      </main>
-    </div>
-  </div>
-
-  <script src="js/version.js"></script>
-  <script src="js/games.js"></script>
-  <script src="js/performance.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/updates.js"></script>
-  <script src="js/sessions.js"></script>
-  <script src="js/optimizer.js"></script>
+<div class="app-shell">
+<header class="titlebar">
+<div aria-label="VoidCore" class="brand">
+<img alt="" class="brand-logo" draggable="false" height="32" src="../assets/branding/void-core-mark.svg" width="32"/>
+<div class="brand-copy">
+<div class="brand-name">VOID <span>CORE</span></div>
+<div class="brand-tagline" data-i18n="PERFORMANCE DIAGNOSTICS">PERFORMANCE DIAGNOSTICS</div>
+</div>
+</div>
+<div class="window-controls">
+<button aria-label="Minimize" class="window-btn" data-i18n-aria-label="Minimize" id="minimizeBtn">−</button>
+<button aria-label="Maximize" class="window-btn" data-i18n-aria-label="Maximize" id="maximizeBtn">□</button>
+<button aria-label="Close" class="window-btn close" data-i18n-aria-label="Close" id="closeBtn">×</button>
+</div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+<nav aria-label="Main navigation" class="nav" data-i18n-aria-label="Main navigation">
+<button class="nav-item active" data-page="dashboard">
+<span class="nav-icon">⌂</span><span data-i18n="Overview">Overview</span>
+</button>
+<button class="nav-item" data-page="steam">
+<span class="nav-icon">◉</span><span data-i18n="Steam Hub">Steam Hub</span>
+</button>
+<button class="nav-item" data-page="sessions">
+<span class="nav-icon">◷</span><span data-i18n="Sessions">Sessions</span>
+</button>
+<button class="nav-item" data-page="optimizer">
+<span class="nav-icon">↗</span><span data-i18n="Optimizer">Optimizer</span>
+</button>
+<button class="nav-item" data-page="diagnostic">
+<span class="nav-icon">◎</span><span data-i18n="Diagnostic">Diagnostic</span>
+</button>
+</nav>
+<div class="sidebar-bottom">
+<button class="nav-item" data-page="account"><span class="nav-icon">◉</span><span data-i18n="Account">Account</span></button>
+<button class="nav-item" data-page="settings">
+<span class="nav-icon">⚙</span><span data-i18n="Settings">Settings</span>
+</button>
+<div class="version"><span aria-hidden="true"></span> VOIDCORE <b aria-live="polite" data-app-version="">—</b></div>
+</div>
+</aside>
+<main class="content">
+<button class="update-notice hidden" id="updateNotice" type="button">Доступно обновление. Открыть Settings</button>
+<section class="page active" id="dashboardPage">
+<header class="page-header">
+<div>
+<p class="eyebrow" data-i18n="OVERVIEW">OVERVIEW</p>
+<h1 data-i18n="System performance">System performance</h1>
+<p class="subtitle" data-i18n="Live hardware and game telemetry.">Live hardware and game telemetry.</p>
+</div>
+<div class="system-status"><span class="status-dot"></span><span data-i18n="System ready">System ready</span></div>
+</header>
+<div class="metrics-grid">
+<article class="metric-card">
+<div class="metric-top"><span>CPU</span><span class="metric-icon">01</span></div>
+<div class="metric-value">--<small>%</small></div>
+<div class="metric-footer"><span data-i18n="Temperature">Temperature</span><strong>--°C</strong></div>
+</article>
+<article class="metric-card">
+<div class="metric-top"><span>GPU</span><span class="metric-icon">02</span></div>
+<div class="metric-value">--<small>%</small></div>
+<div class="metric-footer"><span data-i18n="Temperature">Temperature</span><strong>--°C</strong></div>
+</article>
+<article class="metric-card">
+<div class="metric-top"><span>RAM</span><span class="metric-icon">03</span></div>
+<div class="metric-value">--<small data-i18n="GB"> GB</small></div>
+<div class="metric-footer"><span data-i18n="Available">Available</span><strong data-i18n="-- GB">-- GB</strong></div>
+</article>
+<article class="metric-card">
+<div class="metric-top"><span>VRAM</span><span class="metric-icon">04</span></div>
+<div class="metric-value">--<small data-i18n="GB"> GB</small></div>
+<div class="metric-footer"><span data-i18n="Available">Available</span><strong data-i18n="-- GB">-- GB</strong></div>
+</article>
+</div>
+<div class="dashboard-grid">
+<article class="panel active-game-panel" id="active-game">
+<div class="panel-header">
+<div>
+<p class="eyebrow" data-i18n="ACTIVE SESSION">ACTIVE SESSION</p>
+<h2 id="activeGameName">No game running</h2>
+</div>
+<span class="badge neutral" id="activeGameBadge">IDLE</span>
+</div>
+<div class="game-empty" id="activeGame">
+<div class="game-empty-icon">◇</div>
+<h3 data-i18n="Waiting for a game">Waiting for a game</h3>
+<p data-i18n="Monitoring starts automatically when a supported game is detected.">Monitoring starts automatically when a supported game is detected.</p>
+</div>
+</article>
+<article class="panel quick-panel">
+<div class="panel-header">
+<div>
+<p class="eyebrow" data-i18n="QUICK ACTION">QUICK ACTION</p>
+<h2 data-i18n="Gaming profile">Gaming profile</h2>
+</div>
+<span class="badge accent" data-i18n="READY">READY</span>
+</div>
+<p class="panel-description" data-i18n="Prepare Windows and prioritize your active game session.">Prepare Windows and prioritize your active game session.</p>
+<button class="primary-btn" id="optimizeBtn"><span>↗</span><span data-i18n="Optimize PC">Optimize PC</span></button>
+<div class="action-result hidden" id="optimizeResult"></div>
+</article>
+</div>
+<aside class="diagnostic-alert hidden" id="diagnosticAlert" role="alert">
+<button aria-label="Close" class="diagnostic-alert-close" data-i18n-aria-label="Close" id="dismissDiagnostic">×</button>
+<p class="eyebrow" data-i18n="FPS DROP DETECTED">FPS DROP DETECTED</p>
+<h3 id="diagnosticAlertTitle">Performance drop detected</h3>
+<p id="diagnosticAlertText"></p>
+<div class="diagnostic-alert-fix">
+<strong data-i18n="Что сделать">Что сделать</strong>
+<span id="diagnosticAlertFix"></span>
+</div>
+</aside>
+<article class="panel performance-panel">
+<div class="panel-header">
+<div>
+<p class="eyebrow" data-i18n="LIVE TELEMETRY">LIVE TELEMETRY</p>
+<h2 data-i18n="Game performance">Game performance</h2>
+</div>
+<span class="badge neutral" id="performanceStatus">WAITING</span>
+</div>
+<div class="performance-grid">
+<div class="performance-metric primary"><span>FPS</span><strong id="performanceFPS">--</strong></div>
+<div class="performance-metric"><span data-i18n="FRAME TIME">FRAME TIME</span><strong data-i18n="-- ms" id="performanceFrameTime">-- ms</strong></div>
+<div class="performance-metric"><span>CPU</span><strong id="performanceCPU">--%</strong></div>
+<div class="performance-metric"><span>GPU</span><strong id="performanceGPU">--%</strong></div>
+<div class="performance-metric"><span>RAM</span><strong data-i18n="-- GB" id="performanceRAM">-- GB</strong></div>
+<div class="performance-metric"><span>VRAM</span><strong data-i18n="-- GB" id="performanceVRAM">-- GB</strong></div>
+</div>
+<div class="low-metrics-grid">
+<div class="performance-metric"><span>1% LOW</span><strong id="performanceOneLow">—</strong><small id="oneLowHint">Нужно 1000 кадров</small></div>
+<div class="performance-metric"><span>0.1% LOW</span><strong id="performancePointOneLow">—</strong><small id="pointOneLowHint">Нужно 10000 кадров</small></div>
+</div>
+<p class="low-window-note" data-i18n="Low: последние 12000 кадров, не вся сессия. Расчёт не чаще раза в секунду.">Low: последние 12000 кадров, не вся сессия. Расчёт не чаще раза в секунду.</p>
+<div class="performance-chart">
+<div class="performance-chart-header">
+<div class="chart-label" data-i18n="RECENT HISTORY">RECENT HISTORY</div>
+<div aria-label="Chart metrics" class="chart-tabs" data-i18n-aria-label="Chart metrics">
+<button class="chart-tab active" data-metric="fps">FPS</button>
+<button class="chart-tab" data-i18n="Frame time" data-metric="frameTime">Frame time</button>
+<button class="chart-tab active" data-metric="cpu">CPU</button>
+<button class="chart-tab" data-metric="gpu">GPU</button>
+<button class="chart-tab" data-metric="ram">RAM</button>
+<button class="chart-tab" data-metric="vram">VRAM</button>
+</div>
+</div>
+<canvas height="120" id="performanceChart"></canvas>
+</div>
+</article>
+</section>
+<section class="page" id="steamPage">
+<header class="page-header"><div><p class="eyebrow" data-i18n="STEAM INTEGRATION">STEAM INTEGRATION</p><h1 data-i18n="Steam Hub">Steam Hub</h1><p class="subtitle" data-i18n="Профиль Steam и локальная производительность — без каталога игр.">Профиль Steam и локальная производительность — без каталога игр.</p></div><button class="secondary-btn" data-i18n="Обновить статус" id="steamHubRefresh" type="button">Обновить статус</button></header>
+<p aria-live="polite" class="account-notice" id="steamHubMessage" role="status">Получение состояния аккаунта…</p>
+<section class="panel steam-hub-panel">
+<div class="steam-hub-profile"><img alt="Аватар Steam" data-i18n-alt="Аватар Steam" hidden="" id="steamHubAvatar"/><div><p class="eyebrow" data-i18n="CONNECTED PROFILE">CONNECTED PROFILE</p><h2 id="steamHubName">Steam не привязан</h2><p class="subtitle" id="steamHubID">Войдите в Account, затем привяжите Steam.</p><span class="badge neutral" id="steamHubStatus">НЕ ПРИВЯЗАН</span></div></div>
+<div class="steam-hub-actions"><button class="secondary-btn" data-i18n="Открыть Account" id="steamHubAccount" type="button">Открыть Account</button><button class="primary-btn" data-i18n="Привязать Steam" id="steamHubLink" type="button">Привязать Steam</button><button class="secondary-btn" data-i18n="Остановить ожидание" id="steamHubStop" type="button">Остановить ожидание</button><button class="secondary-btn" data-i18n="Отвязать" id="steamHubUnlink" type="button">Отвязать</button><button class="secondary-btn" data-i18n="Профиль в браузере" id="steamHubProfile" type="button">Профиль в браузере</button><button class="secondary-btn" data-i18n="Открыть Steam" id="steamHubOpen" type="button">Открыть Steam</button></div>
+<p class="subtitle" data-i18n="Пароль Steam вводится только на официальном сайте Steam в браузере. Привязка подтверждает SteamID, но не показывает сетевой статус пользователя.">Пароль Steam вводится только на официальном сайте Steam в браузере. Привязка подтверждает SteamID, но не показывает сетевой статус пользователя.</p>
+</section>
+<section class="panel steam-hub-panel">
+<div class="panel-header"><div><p class="eyebrow" data-i18n="LOCAL MONITORING">LOCAL MONITORING</p><h2 id="steamHubGame">Нет распознанной игры</h2></div><span class="badge neutral" id="steamHubCapture">ОЖИДАНИЕ</span></div>
+<div class="steam-hub-metrics"><div><span>FPS</span><strong id="steamHubFPS">—</strong></div><div><span data-i18n="Frame Time">Frame Time</span><strong id="steamHubFrameTime">—</strong></div><div><span>1% Low</span><strong id="steamHubOneLow">—</strong></div><div><span>0.1% Low</span><strong id="steamHubPointOneLow">—</strong></div></div>
+<p class="subtitle" id="steamHubGameNote">Метрики локальны и не берутся из Steam. Запустите поддерживаемую игру.</p>
+</section>
+<section class="panel steam-hub-panel"><div class="panel-header"><div><p class="eyebrow" data-i18n="THIS COMPUTER">THIS COMPUTER</p><h2 data-i18n="Последние игровые сессии">Последние игровые сессии</h2></div><button class="secondary-btn" data-i18n="Вся история" id="steamHubSessions" type="button">Вся история</button></div><p class="subtitle" data-i18n="Локальная история этого компьютера, не статистика Steam-аккаунта. Средний FPS — по периодическим замерам.">Локальная история этого компьютера, не статистика Steam-аккаунта. Средний FPS — по периодическим замерам.</p><div class="steam-hub-history" id="steamHubHistory"></div><p class="subtitle" id="steamHubHistoryMessage" role="status"></p></section>
+</section>
+<section class="page" id="sessionsPage">
+<header class="page-header">
+<div><p class="eyebrow" data-i18n="LOCAL HISTORY">LOCAL HISTORY</p><h1 data-i18n="Игровые сессии">Игровые сессии</h1><p class="subtitle" data-i18n="История сохраняется на этом компьютере между запусками.">История сохраняется на этом компьютере между запусками.</p></div>
+<button class="primary-btn" data-i18n="Обновить" id="refreshSessionsBtn" type="button">Обновить</button>
+</header>
+<p aria-live="polite" class="subtitle" id="sessionsMessage" role="status"></p>
+<div class="sessions-list" id="sessionsList"></div>
+<div class="sessions-pagination">
+<button class="primary-btn" data-i18n="Назад" id="previousSessionsBtn" type="button">Назад</button>
+<span class="subtitle" id="sessionsPageNumber"></span>
+<button class="primary-btn" data-i18n="Далее" id="nextSessionsBtn" type="button">Далее</button>
+</div>
+<article aria-live="polite" class="panel hidden" id="sessionDetails"></article>
+</section>
+<section class="page" id="optimizerPage">
+<header class="page-header">
+<div><p class="eyebrow" data-i18n="PERFORMANCE">PERFORMANCE</p><h1 data-i18n="Optimizer">Optimizer</h1><p class="subtitle" data-i18n="Choose how VoidCore prepares Windows for gaming.">Choose how VoidCore prepares Windows for gaming.</p></div>
+</header>
+<div class="settings-card">
+<div class="setting-row"><div><strong data-i18n="Автоматический профиль">Автоматический профиль</strong><small data-i18n="Применять при обнаружении игры и восстанавливать после её закрытия.">Применять при обнаружении игры и восстанавливать после её закрытия.</small></div><label class="toggle"><input id="optimizerAutomatic" type="checkbox"/><span></span></label></div>
+<div class="setting-row"><div><strong data-i18n="Приоритет игры">Приоритет игры</strong><small data-i18n="Above Normal, без High и Realtime.">Above Normal, без High и Realtime.</small></div><label class="toggle"><input checked="" id="optimizerRaiseGame" type="checkbox"/><span></span></label></div>
+<div class="setting-row"><div><strong data-i18n="Снизить приоритет VoidCore">Снизить приоритет VoidCore</strong><small data-i18n="Below Normal: меньше конкуренции за CPU, возможна задержка интерфейса.">Below Normal: меньше конкуренции за CPU, возможна задержка интерфейса.</small></div><label class="toggle"><input checked="" id="optimizerLowerApp" type="checkbox"/><span></span></label></div>
+<div class="setting-row"><div><strong data-i18n="Высокая производительность">Высокая производительность</strong><small data-i18n="Доступный план Windows, только от сети. Может повысить нагрев и расход энергии.">Доступный план Windows, только от сети. Может повысить нагрев и расход энергии.</small></div><label class="toggle"><input id="optimizerHighPerformance" type="checkbox"/><span></span></label></div>
+<div class="setting-row"><div><strong data-i18n="Отключить запись Xbox Game DVR">Отключить запись Xbox Game DVR</strong><small data-i18n="На время профиля. Может потребоваться перезапуск игры; запись и клипы могут быть недоступны.">На время профиля. Может потребоваться перезапуск игры; запись и клипы могут быть недоступны.</small></div><label class="toggle"><input id="optimizerDisableDvr" type="checkbox"/><span></span></label></div>
+</div>
+<p aria-live="polite" class="subtitle" id="optimizerMessage" role="status">Получение настроек…</p>
+<div class="update-actions">
+<button class="primary-btn" data-i18n="Применить к текущей игре" id="applyOptimizerBtn" type="button">Применить к текущей игре</button>
+<button class="primary-btn" data-i18n="Восстановить" id="revertOptimizerBtn" type="button">Восстановить</button>
+</div>
+<p class="subtitle" data-i18n="Прирост FPS зависит от причины ограничения. Антивирус и службы не отключаются; изменяются только выбранные приоритеты, план питания и два пользовательских параметра Game DVR.">Прирост FPS зависит от причины ограничения. Антивирус и службы не отключаются; изменяются только выбранные приоритеты, план питания и два пользовательских параметра Game DVR.</p>
+</section>
+<section class="page" id="diagnosticPage">
+<header class="page-header">
+<div><p class="eyebrow" data-i18n="ANALYSIS">ANALYSIS</p><h1 data-i18n="Diagnostic">Diagnostic</h1><p class="subtitle" data-i18n="Understand performance drops and bottlenecks.">Understand performance drops and bottlenecks.</p></div>
+</header>
+<div class="false-positive-summary hidden" id="falsePositiveSummary"></div>
+<div class="diagnostic-events" id="diagnosticEvents">
+<div class="empty-page" id="diagnosticEmpty">
+<div class="empty-icon">◎</div>
+<h2 data-i18n="No FPS drops detected">No FPS drops detected</h2>
+<p data-i18n="VoidCore will show the probable cause and recommendations here.">VoidCore will show the probable cause and recommendations here.</p>
+</div>
+</div>
+</section>
+<section class="page" id="accountPage">
+<div class="page-header"><div><h1 data-i18n="Account">Account</h1><p class="subtitle" data-i18n="Вход и регистрация VoidCore. Управление Steam находится в Steam Hub.">Вход и регистрация VoidCore. Управление Steam находится в Steam Hub.</p></div></div>
+<p class="account-notice" id="accountMessage" role="status">Подключение к сервису аккаунтов…</p>
+<div class="account-grid account-grid-single">
+<section class="panel account-panel">
+<h2 data-i18n="Аккаунт VoidCore">Аккаунт VoidCore</h2>
+<form id="accountForm">
+<label>Email<input autocomplete="username" id="accountEmail" maxlength="254" required="" type="email"/></label>
+<label><span data-i18n="Пароль">Пароль</span><input autocomplete="current-password" id="accountPassword" maxlength="128" required="" type="password"/></label>
+<p class="subtitle" data-i18n="Для регистрации: минимум 12 символов.">Для регистрации: минимум 12 символов.</p>
+<div class="account-actions"><button class="primary-btn" data-i18n="Войти" type="submit">Войти</button><button class="secondary-btn" data-i18n="Регистрация" id="accountRegister" type="button">Регистрация</button></div>
+<div class="account-actions"><button class="secondary-btn" data-i18n="Подтвердить email" id="accountResend" type="button">Подтвердить email</button><button class="secondary-btn" data-i18n="Забыли пароль?" id="accountForgot" type="button">Забыли пароль?</button></div>
+</form>
+<div hidden="" id="accountProfile"><strong id="accountProfileEmail"></strong><p class="subtitle" data-i18n="Email подтверждён">Email подтверждён</p><button class="secondary-btn" data-i18n="Выйти" id="accountLogout">Выйти</button></div>
+<button class="secondary-btn" data-i18n="Обновить аккаунт" id="accountRefresh">Обновить аккаунт</button>
+<p class="subtitle" id="accountStorageHint"></p>
+</section>
+</div>
+</section>
+<section class="page" id="settingsPage">
+<header class="page-header">
+<div><p class="eyebrow" data-i18n="CONFIGURATION">CONFIGURATION</p><h1 data-i18n="Settings">Settings</h1><p class="subtitle" data-i18n="Application behavior and startup preferences.">Application behavior and startup preferences.</p></div>
+</header>
+<div class="settings-card"><div class="setting-row"><div><strong data-i18n="Язык приложения">Язык приложения</strong><small data-i18n="Переключается сразу и сохраняется на этом компьютере.">Переключается сразу и сохраняется на этом компьютере.</small></div><select aria-label="Выбор языка" data-i18n-aria-label="Выбор языка" id="languageSelect"><option value="ru">Русский</option><option value="en">English</option></select></div><p aria-live="polite" id="languageSaveMessage" role="status"></p></div>
+<div class="settings-card">
+<div class="setting-row"><div><strong>VoidCore</strong><small data-i18n="Application version">Application version</small></div><strong aria-live="polite" data-app-version="">—</strong></div>
+<div class="setting-row"><div><strong data-i18n="Start with Windows">Start with Windows</strong><small data-i18n="Launch VoidCore after sign in.">Launch VoidCore after sign in.</small></div><label class="toggle"><input type="checkbox"/><span></span></label></div>
+<div class="setting-row"><div><strong data-i18n="Minimize to tray">Minimize to tray</strong><small data-i18n="Continue monitoring after closing the window.">Continue monitoring after closing the window.</small></div><label class="toggle"><input checked="" type="checkbox"/><span></span></label></div>
+</div>
+<article aria-labelledby="updatesHeading" class="settings-card update-panel">
+<div class="panel-header"><div><p class="eyebrow">GITHUB RELEASES</p><h2 data-i18n="Обновления приложения" id="updatesHeading">Обновления приложения</h2></div></div>
+<p aria-live="polite" id="updateMessage" role="status">Получение состояния обновлений…</p>
+<p class="subtitle" id="updateAvailableVersion"></p>
+<progress aria-label="Прогресс скачивания" class="hidden" data-i18n-aria-label="Прогресс скачивания" id="updateProgress" max="100" value="0"></progress>
+<div class="update-actions">
+<button class="primary-btn" data-i18n="Проверить обновления" disabled="" id="checkUpdateBtn" type="button">Проверить обновления</button>
+<button class="primary-btn hidden" data-i18n="Скачать" id="downloadUpdateBtn" type="button">Скачать</button>
+<button class="primary-btn hidden" data-i18n="Установить и перезапустить" id="installUpdateBtn" type="button">Установить и перезапустить</button>
+</div>
+<p class="subtitle" data-i18n="Скачивание и установка — только по вашему запросу, вне игры.">Скачивание и установка — только по вашему запросу, вне игры.</p>
+</article>
+</section>
+</main>
+</div>
+</div>
+<script src="js/locales.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/version.js"></script>
+<script src="js/games.js"></script>
+<script src="js/performance.js"></script>
+<script src="js/app.js"></script>
+<script src="js/updates.js"></script>
+<script src="js/sessions.js"></script>
+<script src="js/optimizer.js"></script>
+<script src="js/account.js"></script>
+<script src="js/steam-hub.js"></script>
 </body>
 </html>

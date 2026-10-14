@@ -1,6 +1,6 @@
 {
   "name": "voidcore",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "description": "VoidCore - Gaming Hub, Optimizer and Diagnostic",
   "main": "electron/main.js",
   "author": "VoidCore",
@@ -22,7 +22,9 @@
     "test:updates": "node tests/updates.test.js && node tests/update-regressions.test.js",
     "test:sessions": "node tests/sessions.test.js",
     "test:low-optimizer": "node tests/low-optimizer.test.js",
-    "test:system-optimizer": "node tests/system-optimizer.test.js"
+    "test:system-optimizer": "node tests/system-optimizer.test.js",
+    "test:accounts": "node --test tests/accounts-client.test.js tests/steam-local.test.js",
+    "test:backend": "npm --prefix backend test"
   },
   "devDependencies": {
     "electron": "^37.2.6",

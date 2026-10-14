@@ -61,10 +61,10 @@ function updateActiveGame(game) {
     if (!game) {
 
         gameName.textContent =
-            "No game running";
+            vcT("No game running");
 
         gameBadge.textContent =
-            "IDLE";
+            vcT("IDLE");
 
         gameBadge.className =
             "badge neutral";
@@ -86,11 +86,11 @@ function updateActiveGame(game) {
             </div>
 
             <h3>
-                Ready when you are.
+                ${vcT("Ready when you are.")}
             </h3>
 
             <p>
-                VoidCore is waiting for a game to start.
+                ${vcT("VoidCore is waiting for a game to start.")}
             </p>
 
         `;
@@ -106,7 +106,7 @@ function updateActiveGame(game) {
 
 
     gameBadge.textContent =
-        "RUNNING";
+        vcT("RUNNING");
 
 
     gameBadge.className =
@@ -185,7 +185,7 @@ function updateActiveGame(game) {
 
                 <span class="status-dot"></span>
 
-                LIVE
+                ${vcT("LIVE")}
 
             </div>
 
@@ -207,3 +207,4 @@ setInterval(
     refreshGames,
     3000
 );
+window.addEventListener('voidcore:language-changed',()=>updateActiveGame(activeGame));

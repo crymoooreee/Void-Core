@@ -1,0 +1,25 @@
+services:
+  api:
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - account_data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  account_data:

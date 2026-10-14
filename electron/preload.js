@@ -4,6 +4,31 @@ contextBridge.exposeInMainWorld("voidCore", {
   app: {
     getInfo: () => ipcRenderer.invoke("app:getInfo")
   },
+  account: {
+    getState: () => ipcRenderer.invoke("account:state"),
+    register: data => ipcRenderer.invoke("account:register", data),
+    login: data => ipcRenderer.invoke("account:login", data),
+    resend: data => ipcRenderer.invoke("account:resend", data),
+    forgot: data => ipcRenderer.invoke("account:forgot", data),
+    refresh: () => ipcRenderer.invoke("account:refresh"),
+    logout: () => ipcRenderer.invoke("account:logout"),
+    openSteamProfile: () => ipcRenderer.invoke("account:steam-profile"),
+    linkSteam: () => ipcRenderer.invoke("account:steam-link"),
+    stopSteam: () => ipcRenderer.invoke("account:steam-stop"),
+    unlinkSteam: () => ipcRenderer.invoke("account:steam-unlink"),
+    getSteamLibrary: () => ipcRenderer.invoke("account:steam-library"),
+    onState: listener => {
+      if (typeof listener !== "function") return () => {};
+      const handler = (_event, state) => listener(state);
+      ipcRenderer.on("account:changed", handler);
+      return () => ipcRenderer.removeListener("account:changed", handler);
+    }
+  },
+  steam: {
+    open: () => ipcRenderer.invoke("steam:open"),
+    getLocalGames: () => ipcRenderer.invoke("steam:local"),
+    launch: appid => ipcRenderer.invoke("steam:launch", appid)
+  },
   updates: {
     getState: () => ipcRenderer.invoke("updates:state"),
     check: () => ipcRenderer.invoke("updates:check"),

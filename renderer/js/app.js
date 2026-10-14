@@ -1,9 +1,10 @@
 const pages = {
   dashboard: document.getElementById("dashboardPage"),
-  games: document.getElementById("gamesPage"),
+  steam: document.getElementById("steamPage"),
   sessions: document.getElementById("sessionsPage"),
   optimizer: document.getElementById("optimizerPage"),
   diagnostic: document.getElementById("diagnosticPage"),
+  account: document.getElementById("accountPage"),
   settings: document.getElementById("settingsPage")
 };
 
@@ -19,6 +20,7 @@ function showPage(pageName) {
   navItems.forEach((item) => {
     item.classList.toggle("active", item.dataset.page === pageName);
   });
+  document.dispatchEvent(new CustomEvent("voidcore:page-changed", { detail: { page: pageName } }));
 }
 
 navItems.forEach((item) => {
@@ -83,7 +85,7 @@ function updateMetric(
   valueElement.innerHTML =
     `${value}<small>${unit}</small>`;
 
-  footerLabel.textContent = label;
+  footerLabel.textContent = vcT(label);
 
   footerValue.textContent = footer;
 }
@@ -106,7 +108,7 @@ function updateHardwareUI(data) {
 
     "%",
 
-    "Temperature",
+    vcT("Temperature"),
 
     data.cpu.temperature == null
       ? "--°C"
@@ -128,7 +130,7 @@ function updateHardwareUI(data) {
 
     "%",
 
-    "Temperature",
+    vcT("Temperature"),
 
     data.gpu.temperature == null
       ? "--°C"
@@ -149,16 +151,16 @@ function updateHardwareUI(data) {
 
     " GB",
 
-    "Available",
+    vcT("Available"),
 
     `${formatNumber(
       data.memory.available
-    )} GB`
+    )} ${vcT("GB")}`
   );
 
   // VRAM
 
-  let vramAvailable = "-- GB";
+  let vramAvailable = vcT("-- GB");
 
 
   if (
@@ -169,7 +171,7 @@ function updateHardwareUI(data) {
       `${formatNumber(
         data.gpu.vramTotal -
         data.gpu.vramUsed
-      )} GB`;
+      )} ${vcT("GB")}`;
   }
 
 
@@ -182,7 +184,7 @@ function updateHardwareUI(data) {
 
     " GB",
 
-    "Available",
+    vcT("Available"),
 
     vramAvailable
   );
